@@ -38,9 +38,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   }, [messages]);
 
   const handleInitialMessage = async (message: string) => {
-    setMessageLoading(true); // Show loading animation
-
     try {
+      setMessageLoading(true);
       const botResponse = await onSendMessage(message);
       const responseMessage = new Message({ id: 2, message: botResponse });
       setMessages((prevMessages) => [...prevMessages, responseMessage]);
@@ -51,9 +50,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         message: "Sorry, something went wrong.",
       });
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setMessageLoading(false);
     }
-
-    setMessageLoading(false); // Hide loading animation
   };
 
   const handleSendMessage = async () => {
@@ -61,9 +60,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
       const userMessage = new Message({ id: 1, message: inputValue });
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setInputValue("");
-      setMessageLoading(true); // Show loading animation while waiting for the response
 
       try {
+        setMessageLoading(true);
         const botResponse = await onSendMessage(inputValue);
         const responseMessage = new Message({ id: 2, message: botResponse });
         setMessages((prevMessages) => [...prevMessages, responseMessage]);
@@ -74,9 +73,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           message: "Sorry, something went wrong.",
         });
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      } finally {
+        setMessageLoading(false);
       }
-
-      setMessageLoading(false); // Hide loading animation
     }
   };
 
@@ -98,7 +97,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           } else {
             return (
               <div key={index} className={`flex justify-start mb-2`}>
-                <div
+            <div
                   className={`p-2 rounded-lg text-black`}
                   style={{ maxWidth: "70%" }}
                   dangerouslySetInnerHTML={{ __html: msg.message }}
@@ -136,11 +135,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           }}
           className="w-[70%] h-20 rounded-md border-2 pl-3 resize-none"
           placeholder="Message KollegeGPT"
+          disabled={messageLoading}
         />
         <button
-          className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-cyan-700 hover:bg-cyan-900"
+            }`}
           onClick={handleSendMessage}
-          disabled={messageLoading} // Disable button while message is being processed
+          disabled={messageLoading}
         >
           <UpArrowIcon />
         </button>
