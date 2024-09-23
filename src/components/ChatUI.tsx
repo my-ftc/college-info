@@ -51,8 +51,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
       });
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
     }
-
-    setMessageLoading(false);
   };
 
   const handleSendMessage = async () => {
@@ -74,33 +72,36 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         });
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
       }
-
-      setMessageLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-220px)]">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.id === 1 ? "justify-end" : "justify-start"
-            } mb-2`}
-          >
-            <div
-              className={`p-2 rounded-lg ${
-                msg.id === 1
-                  ? "bg-cyan-700 text-white"
-                  : "bg-gray-300 text-black"
-              }`}
-              style={{ maxWidth: "70%" }}
-            >
-              {msg.message}
-            </div>
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          if (msg.id === 1) {
+            return (
+              <div key={index} className={`flex justify-end mb-2`}>
+                <div
+                  className={`p-2 rounded-lg bg-cyan-700 text-white`}
+                  style={{ maxWidth: "70%" }}
+                >
+                  {msg.message}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div key={index} className={`flex justify-start mb-2`}>
+                <div
+                  className={`p-2 rounded-lg text-black`}
+                  style={{ maxWidth: "70%" }}
+                  dangerouslySetInnerHTML={{ __html: msg.message }}
+                ></div>
+              </div>
+            );
+          }
+        })}
         {/* Invisible div to mark the end of the messages */}
         <div ref={messagesEndRef} />
       </div>
@@ -123,7 +124,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           placeholder="Message KollegeGPT"
         />
         <button
-          className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
+          className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white disabled:bg-gray-600"
           onClick={handleSendMessage}
           disabled={messageLoading}
         >

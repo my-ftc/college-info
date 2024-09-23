@@ -8,6 +8,7 @@ import ChatUI from "@components/ChatUI";
 
 export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
+  const [messageLoading, setMessageLoading] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,7 +37,17 @@ export default function Home() {
       throw new Error("Network response was not ok");
     }
     const data = await chatGPTresponse.json();
-    return data.response;
+    return formatTextToHTML(data.response);
+  };
+
+  const formatTextToHTML = (text: string) => {
+    // Replace **bold text** with <strong>bold text</strong>
+    const boldText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Replace \n\n with <br /> for new lines
+    const formattedText = boldText.replace(/\n/g, "<br />");
+
+    return formattedText;
   };
 
   return (
