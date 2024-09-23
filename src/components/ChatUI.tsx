@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Message } from "react-chat-ui";
 import { UpArrowIcon } from "../app/utils/commonIcons";
-import { TypeAnimation } from "react-type-animation";
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -40,6 +39,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
 
   const handleInitialMessage = async (message: string) => {
     try {
+      setMessageLoading(true);
       const botResponse = await onSendMessage(message);
       const responseMessage = new Message({ id: 2, message: botResponse });
       setMessages((prevMessages) => [...prevMessages, responseMessage]);
@@ -50,20 +50,20 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         message: "Sorry, something went wrong.",
       });
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setMessageLoading(false);
     }
-
-    setMessageLoading(false);
   };
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
-      const inputValueObj = inputValue;
-      setInputValue("");
-      const userMessage = new Message({ id: 1, message: inputValueObj });
+      const userMessage = new Message({ id: 1, message: inputValue });
       setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setInputValue("");
 
       try {
-        const botResponse = await onSendMessage(inputValueObj);
+        setMessageLoading(true);
+        const botResponse = await onSendMessage(inputValue);
         const responseMessage = new Message({ id: 2, message: botResponse });
         setMessages((prevMessages) => [...prevMessages, responseMessage]);
       } catch (error) {
@@ -73,34 +73,49 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           message: "Sorry, something went wrong.",
         });
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      } finally {
+        setMessageLoading(false);
       }
-
-      setMessageLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-220px)]">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.id === 1 ? "justify-end" : "justify-start"
-            } mb-2`}
-          >
+        {messages.map((msg, index) => {
+          if (msg.id === 1) {
+            return (
+              <div key={index} className={`flex justify-end mb-2`}>
+                <div
+                  className={`p-2 rounded-lg bg-cyan-700 text-white`}
+                  style={{ maxWidth: "70%" }}
+                >
+                  {msg.message}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div key={index} className={`flex justify-start mb-2`}>
             <div
-              className={`p-2 rounded-lg ${
-                msg.id === 1
-                  ? "bg-cyan-700 text-white"
-                  : "bg-gray-300 text-black"
-              }`}
+                  className={`p-2 rounded-lg text-black`}
+                  style={{ maxWidth: "70%" }}
+                  dangerouslySetInnerHTML={{ __html: msg.message }}
+                ></div>
+              </div>
+            );
+          }
+        })}
+        {messageLoading && (
+          <div className="flex justify-start mb-2">
+            <div
+              className="p-2 rounded-lg text-black flex items-center justify-center"
               style={{ maxWidth: "70%" }}
             >
-              {msg.message}
+              <div className="spinner"></div>
             </div>
           </div>
-        ))}
+        )}
         {/* Invisible div to mark the end of the messages */}
         <div ref={messagesEndRef} />
       </div>
@@ -115,15 +130,18 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
               } else {
                 e.preventDefault();
                 handleSendMessage();
-                setMessageLoading(true);
               }
             }
           }}
           className="w-[70%] h-20 rounded-md border-2 pl-3 resize-none"
           placeholder="Message KollegeGPT"
+          disabled={messageLoading}
         />
         <button
-          className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-cyan-700 hover:bg-cyan-900"
+            }`}
           onClick={handleSendMessage}
           disabled={messageLoading}
         >
