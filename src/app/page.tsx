@@ -9,6 +9,7 @@ import ChatUI from "@components/ChatUI";
 export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const randomQuestionsArr: string[] = questionnaireData.map(
@@ -49,6 +50,12 @@ export default function Home() {
     return formattedText;
   };
 
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim() !== "") {
+      setSelectedQuestion(searchQuery);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
       <Header />
@@ -77,8 +84,18 @@ export default function Home() {
                   type="text"
                   className="w-[70%] h-11 rounded-md border-2 pl-3"
                   placeholder="Start your chat with KollegeGPT"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchSubmit();
+                    }
+                  }}
                 />
-                <button className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white">
+                <button
+                  className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
+                  onClick={handleSearchSubmit}
+                >
                   <UpArrowIcon />
                 </button>
               </div>
