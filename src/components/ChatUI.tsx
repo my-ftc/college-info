@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Message } from "react-chat-ui";
 import { UpArrowIcon } from "../app/utils/commonIcons";
-import { TypeAnimation } from "react-type-animation";
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -39,6 +38,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   }, [messages]);
 
   const handleInitialMessage = async (message: string) => {
+    setMessageLoading(true); // Show loading animation
+
     try {
       const botResponse = await onSendMessage(message);
       const responseMessage = new Message({ id: 2, message: botResponse });
@@ -52,18 +53,18 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
     }
 
-    setMessageLoading(false);
+    setMessageLoading(false); // Hide loading animation
   };
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
-      const inputValueObj = inputValue;
-      setInputValue("");
-      const userMessage = new Message({ id: 1, message: inputValueObj });
+      const userMessage = new Message({ id: 1, message: inputValue });
       setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setInputValue("");
+      setMessageLoading(true); // Show loading animation while waiting for the response
 
       try {
-        const botResponse = await onSendMessage(inputValueObj);
+        const botResponse = await onSendMessage(inputValue);
         const responseMessage = new Message({ id: 2, message: botResponse });
         setMessages((prevMessages) => [...prevMessages, responseMessage]);
       } catch (error) {
@@ -75,32 +76,47 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
       }
 
-      setMessageLoading(false);
+      setMessageLoading(false); // Hide loading animation
     }
   };
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-220px)]">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.id === 1 ? "justify-end" : "justify-start"
-            } mb-2`}
-          >
+        {messages.map((msg, index) => {
+          if (msg.id === 1) {
+            return (
+              <div key={index} className={`flex justify-end mb-2`}>
+                <div
+                  className={`p-2 rounded-lg bg-cyan-700 text-white`}
+                  style={{ maxWidth: "70%" }}
+                >
+                  {msg.message}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div key={index} className={`flex justify-start mb-2`}>
+                <div
+                  className={`p-2 rounded-lg text-black`}
+                  style={{ maxWidth: "70%" }}
+                  dangerouslySetInnerHTML={{ __html: msg.message }}
+                ></div>
+              </div>
+            );
+          }
+        })}
+        {messageLoading && (
+          <div className="flex justify-start mb-2">
             <div
-              className={`p-2 rounded-lg ${
-                msg.id === 1
-                  ? "bg-cyan-700 text-white"
-                  : "bg-gray-300 text-black"
-              }`}
+              className="p-2 rounded-lg text-black flex items-center justify-center"
               style={{ maxWidth: "70%" }}
             >
-              {msg.message}
+              <div className="spinner"></div>
             </div>
           </div>
-        ))}
+        )}
         {/* Invisible div to mark the end of the messages */}
         <div ref={messagesEndRef} />
       </div>
@@ -115,7 +131,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
               } else {
                 e.preventDefault();
                 handleSendMessage();
-                setMessageLoading(true);
               }
             }
           }}
@@ -125,7 +140,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         <button
           className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
           onClick={handleSendMessage}
-          disabled={messageLoading}
+          disabled={messageLoading} // Disable button while message is being processed
         >
           <UpArrowIcon />
         </button>
