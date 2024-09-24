@@ -23,7 +23,7 @@ const SwivelInfo = ({
   }, [texts, interval]);
 
   return (
-    <div className="overflow-hidden flex justify-center items-center h-16 text-5xl">
+    <div className="overflow-hidden flex justify-center items-center h-16 text-2xl mt-10">
       <div
         style={{
           transition: "transform 0.5s ease",

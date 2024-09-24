@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Message } from "react-chat-ui";
-import { UpArrowIcon } from "../app/utils/commonIcons";
+import { CopyIcon, UpArrowIcon } from "../app/utils/commonIcons";
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -85,23 +85,45 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         {messages.map((msg, index) => {
           if (msg.id === 1) {
             return (
-              <div key={index} className={`flex justify-end mb-2`}>
+              <div
+                key={index}
+                className="flex mb-2 justify-end items-end gap-2"
+              >
                 <div
-                  className={`p-2 rounded-lg bg-cyan-700 text-white`}
+                  className={`p-4 rounded-lg bg-cyan-700 text-white`}
                   style={{ maxWidth: "70%" }}
                 >
                   {msg.message}
+                </div>
+                <div
+                  className="cursor-pointer"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(msg.message);
+                  }}
+                >
+                  <CopyIcon />
                 </div>
               </div>
             );
           } else {
             return (
-              <div key={index} className={`flex justify-start mb-2`}>
-            <div
-                  className={`p-2 rounded-lg text-black`}
-                  style={{ maxWidth: "70%" }}
+              <div
+                key={index}
+                className={`flex justify-start mt-6 mb-6 items-end gap-2`}
+              >
+                <div
+                  className={`p-4 rounded-lg text-black bg-gray-100`}
+                  style={{ maxWidth: "100%" }}
                   dangerouslySetInnerHTML={{ __html: msg.message }}
                 ></div>
+                <div
+                  className="cursor-pointer"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(msg.message);
+                  }}
+                >
+                  <CopyIcon />
+                </div>
               </div>
             );
           }
@@ -133,15 +155,16 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
               }
             }
           }}
-          className="w-[70%] h-20 rounded-md border-2 pl-3 resize-none"
+          className="w-[70%] rounded-md border-2 pl-3 resize-none h-auto"
           placeholder="Message KollegeGPT"
           disabled={messageLoading}
         />
         <button
-          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${
+            messageLoading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-cyan-700 hover:bg-cyan-900"
-            }`}
+          }`}
           onClick={handleSendMessage}
           disabled={messageLoading}
         >
