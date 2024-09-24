@@ -15,6 +15,7 @@ export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const logos = Array.from({ length: 18 }, (_, i) => `${i + 1}.png`);
 
   useEffect(() => {
     const randomQuestionsArr: string[] = questionnaireData.map(
@@ -115,7 +116,23 @@ export default function Home() {
           )}
         </div>
         <div className="w-[70%] max-h-screen flex flex-col items-center m-4 bg-[#F9F9F9] justify-center rounded-lg">
-          <p>Apply to our partnered universities</p>
+          <b className="text-xl">Apply to our partnered universities</b>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
+            {logos.map((logo, index) => {
+              return (
+                <div
+                  key={index}
+                  className="flex justify-center items-center p-3 border border-gray-200 rounded"
+                >
+                  <img
+                    src={`/assets/college-logos/${logo}`}
+                    alt={`Logo ${index + 1}`}
+                    className="h-20 w-20 object-contain grayscale-0"
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

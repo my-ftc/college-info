@@ -27,22 +27,22 @@ body {
 
 @font-face {
   font-family: "LatoLight";
-  src: url("../public/Lato/Lato-Light.ttf");
+  src: url("../../public/Lato/Lato-Light.ttf");
 }
 
 @font-face {
   font-family: "LatoBold";
-  src: url("../public/Lato/Lato-ExtraBold.ttf");
+  src: url("../../public/Lato/Lato-ExtraBold.ttf");
 }
 
 @font-face {
   font-family: "LatoRegular";
-  src: url("../public/Lato/Lato-Regular.ttf");
+  src: url("../../public/Lato/Lato-Regular.ttf");
 }
 
 @font-face {
   font-family: "LatoSemiBold";
-  src: url("../public/Lato/Lato-SemiBold.ttf");
+  src: url("../../public/Lato/Lato-SemiBold.ttf");
 }
 
 .spinner {
