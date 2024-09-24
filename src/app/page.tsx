@@ -15,6 +15,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const randomQuestionsArr: string[] = questionnaireData.map(
