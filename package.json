@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
     "next": "14.2.12",
     "openai": "^4.63.0",
     "react": "^18",

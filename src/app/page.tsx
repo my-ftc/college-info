@@ -52,7 +52,6 @@ export default function Home() {
 
     // Replace \n\n with <br /> for new lines
     const formattedText = boldText.replace(/\n/g, "<br />");
-
     return formattedText;
   };
 
@@ -62,23 +61,25 @@ export default function Home() {
     }
   };
 
+  const handleStartNew = () => {
+    setSelectedQuestion(null);
+    setSearchQuery("");
+  };
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
-      <Header />
+      <Header onStartNew={handleStartNew} />
       <div className="flex flex-row flex-grow w-full mt-6 h-full md:flex-row sm:flex-col">
         <div className="w-[130%] max-h-screen flex flex-col justify-center items-center m-4">
           {!selectedQuestion ? (
             <>
               <SwivelInfo texts={texts} interval={3000} />
-              {/* Question Grid */}
               <div className="flex flex-row justify-around gap-3 mb-10 mt-20">
                 {randomQuestions.map((question: string, index: number) => (
                   <div
                     key={index}
                     className="bg-white hover:bg-[#F9F9F9] p-6 w-[25%] rounded-lg text-center cursor-pointer border-2"
-                    onClick={() => {
-                      setSelectedQuestion(question);
-                    }}
+                    onClick={() => setSelectedQuestion(question)}
                   >
                     <p className="font-bold">{question}</p>
                   </div>
@@ -92,11 +93,7 @@ export default function Home() {
                   placeholder="Start your chat with KollegeGPT"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSearchSubmit();
-                    }
-                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
                 />
                 <button
                   className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
@@ -118,20 +115,18 @@ export default function Home() {
         <div className="w-[70%] max-h-screen flex flex-col items-center m-4 bg-[#F9F9F9] justify-center rounded-lg">
           <b className="text-xl">Apply to our partnered universities</b>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
-            {logos.map((logo, index) => {
-              return (
-                <div
-                  key={index}
-                  className="flex justify-center items-center p-3 border border-gray-200 rounded"
-                >
-                  <img
-                    src={`/assets/college-logos/${logo}`}
-                    alt={`Logo ${index + 1}`}
-                    className="h-20 w-20 object-contain grayscale-0"
-                  />
-                </div>
-              );
-            })}
+            {logos.map((logo, index) => (
+              <div
+                key={index}
+                className="flex justify-center items-center p-3 border border-gray-200 rounded"
+              >
+                <img
+                  src={`/assets/college-logos/${logo}`}
+                  alt={`Logo ${index + 1}`}
+                  className="h-20 w-20 object-contain grayscale-0"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
