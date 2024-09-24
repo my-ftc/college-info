@@ -5,8 +5,14 @@ import questionnaireData from "@app/data/questionnaire-data.json";
 import { useEffect, useState } from "react";
 import { UpArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
+import SwivelInfo from "@components/SwivelInfo";
 
 export default function Home() {
+  const texts = [
+    "Looking at MBA/PGDM admissions?",
+    "Get all your answers here. Instantly.",
+  ];
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
 
@@ -49,15 +55,22 @@ export default function Home() {
     return formattedText;
   };
 
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim() !== "") {
+      setSelectedQuestion(searchQuery);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
       <Header />
-      <div className="flex flex-row flex-grow w-full mt-6 h-full">
+      <div className="flex flex-row flex-grow w-full mt-6 h-full md:flex-row sm:flex-col">
         <div className="w-[130%] max-h-screen flex flex-col justify-center items-center m-4">
           {!selectedQuestion ? (
             <>
+              <SwivelInfo texts={texts} interval={3000} />
               {/* Question Grid */}
-              <div className="flex flex-row justify-around gap-3 mb-10">
+              <div className="flex flex-row justify-around gap-3 mb-10 mt-20">
                 {randomQuestions.map((question: string, index: number) => (
                   <div
                     key={index}
@@ -71,21 +84,29 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Search Bar */}
               <div className="flex flex-row w-full items-center gap-2 justify-center mt-10">
                 <input
                   type="text"
                   className="w-[70%] h-11 rounded-md border-2 pl-3"
                   placeholder="Start your chat with KollegeGPT"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchSubmit();
+                    }
+                  }}
                 />
-                <button className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white">
+                <button
+                  className="cursor-pointer bg-cyan-700 p-2 rounded-md hover:bg-cyan-900 transition-colors text-white"
+                  onClick={handleSearchSubmit}
+                >
                   <UpArrowIcon />
                 </button>
               </div>
             </>
           ) : (
             <div className="flex flex-col w-full h-full p-0">
-              {/* Chat UI */}
               <ChatUI
                 selectedQuestion={selectedQuestion}
                 onSendMessage={handleSendMessage}
@@ -93,11 +114,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        {/*          <SwivelInfo texts={texts} interval={3000} />
-        <button className="cursor-pointer bg-cyan-700 p-2 rounded-md w-48 hover:bg-cyan-900 transition-colors mt-7 text-white">
-          Start chatting
-        </button>*/}
-        <div className="w-[70%] max-h-screen flex flex-col items-center m-4 bg-[#F9F9F9] justify-center">
+        <div className="w-[70%] max-h-screen flex flex-col items-center m-4 bg-[#F9F9F9] justify-center rounded-lg">
           <p>Apply to our partnered universities</p>
         </div>
       </div>
