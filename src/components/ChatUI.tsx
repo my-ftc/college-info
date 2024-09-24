@@ -15,7 +15,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null); // Ref to track the end of the message list
   const hasFetchedInitialMessage = useRef(false); // Guard to ensure initial message isn't fetched twice
-  const textAreaRef = useRef<any>(null);
 
   // Scroll to the bottom of the chat whenever new messages are added
   const scrollToBottom = () => {
@@ -53,9 +52,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
       setMessageLoading(false);
-      if (textAreaRef.current) {
-        textAreaRef.current.focus();
-      }
     }
   };
 
@@ -79,9 +75,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
       } finally {
         setMessageLoading(false);
-        if (textAreaRef.current) {
-          textAreaRef.current.focus();
-        }
       }
     }
   };
@@ -165,7 +158,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           className="w-[70%] rounded-md border-2 pl-3 resize-none h-auto"
           placeholder="Message KollegeGPT"
           disabled={messageLoading}
-          ref={textAreaRef}
         />
         <button
           className={`cursor-pointer p-2 rounded-md transition-colors text-white ${

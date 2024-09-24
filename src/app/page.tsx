@@ -12,7 +12,6 @@ export default function Home() {
     "Looking at MBA/PGDM admissions?",
     "Get all your answers here. Instantly.",
   ];
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
