@@ -148,6 +148,6 @@ export const queryLLM = async (client: any, indexName: string, llmPrompt: string
     console.log(`Answer: ${result.text}`);
     return result.text;
   } else {
-    return "Sorry, we could not find an answer in our DB to your question.";
+    return "Sorry, we could not abling to find an answer in our DB to your question.";
   }
 }
