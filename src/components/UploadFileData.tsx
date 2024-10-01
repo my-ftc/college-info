@@ -15,7 +15,7 @@ const UploadFileData = () => {
   return (
     <div className="w-full flex flex-col justify-center items-center mt-20">
       <div className="m-4 flex flex-row gap-5 items-center justify-between w-[40%]">
-        <label>Enter a unique key</label>
+        <label>Enter the unique key</label>
         <input
           type="text"
           placeholder="Enter the unique key"
