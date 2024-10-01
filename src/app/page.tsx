@@ -68,7 +68,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
-      <Header onStartNew={handleStartNew} />
+      <Header onStartNew={handleStartNew} showNewChat={true} />
       <div className="flex flex-row flex-grow w-full mt-6 h-full md:flex-row sm:flex-col">
         <div className="w-[130%] max-h-screen flex flex-col justify-center items-center m-4">
           {!selectedQuestion ? (
