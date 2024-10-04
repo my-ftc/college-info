@@ -73,8 +73,8 @@ export const updatePineconeIndex = async (client: any, indexName: string, docume
     // 5. Embed the chunks using the OpenAI Embeddings API
     console.log('Embedding the chunks...');
     const embeddingsArray = await new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPENAI_API_KEY ?? 'sk-proj-eNDD89dvOAc6yWiAUBhOT3BlbkFJ748qsjNGMFvEmajBc8fZ',
-      apiKey: process.env.OPENAI_API_KEY ?? 'sk-proj-eNDD89dvOAc6yWiAUBhOT3BlbkFJ748qsjNGMFvEmajBc8fZ',
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
     }).embedDocuments(
       chunks.map((chunk) => chunk.pageContent.replace(/\n/g, ' '))
     );
@@ -112,8 +112,8 @@ export const queryLLM = async (client: any, indexName: string, llmPrompt: string
 
   // 2. Create query embedding
   const queryEmbedding = await new OpenAIEmbeddings({
-    openAIApiKey: process.env.OPENAI_API_KEY ?? 'sk-proj-eNDD89dvOAc6yWiAUBhOT3BlbkFJ748qsjNGMFvEmajBc8fZ',
-    apiKey: process.env.OPENAI_API_KEY ?? 'sk-proj-eNDD89dvOAc6yWiAUBhOT3BlbkFJ748qsjNGMFvEmajBc8fZ',
+    openAIApiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.OPENAI_API_KEY,
   }).embedQuery(llmPrompt);
 
   const queryResponse = await index.query({
