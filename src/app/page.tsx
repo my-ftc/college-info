@@ -31,7 +31,7 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
-    const chatGPTresponse = await fetch("/api/chatgpt", {
+    const chatGPTresponse = await fetch("/api/read", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
