@@ -19,8 +19,7 @@ export async function POST(request: NextRequest) {
 
 const openAI = new OpenAI({
   apiKey:
-    process.env.CHATGPT_API_KEY ??
-    "sk-proj-eNDD89dvOAc6yWiAUBhOT3BlbkFJ748qsjNGMFvEmajBc8fZ",
+    process.env.CHATGPT_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
