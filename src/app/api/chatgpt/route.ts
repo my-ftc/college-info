@@ -6,9 +6,10 @@ export async function POST(request: NextRequest) {
     const requestBody = await request.json();
     const { query } = requestBody;
 
-    let response = await askChatGPT(query);
+    const response = await askChatGPT(query);
     return NextResponse.json({ response: response }, { status: 200 });
   } catch (e) {
+    console.error("Error:", e);
     return NextResponse.json(
       { response: "Something went wrong, try again" },
       { status: 500 }
