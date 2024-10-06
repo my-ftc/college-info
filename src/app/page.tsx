@@ -31,7 +31,7 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
-    const chatGPTresponse = await fetch("/api/read", {
+    const chatGPTresponse = await fetch("/api/chatgpt/assistant", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,11 +47,10 @@ export default function Home() {
   };
 
   const formatTextToHTML = (text: string) => {
-    // Replace **bold text** with <strong>bold text</strong>
-    const boldText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-    // Replace \n\n with <br /> for new lines
-    const formattedText = boldText.replace(/\n/g, "<br />");
+    let formattedText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    formattedText = formattedText.replace(/### (\S+)/g, "**$1**");
+    formattedText = formattedText.replace(/\n/g, "<br />");
+    formattedText = formattedText.replace(/【\d+:\d+†source】/g, "");
     return formattedText;
   };
 
@@ -69,8 +68,8 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
       <Header onStartNew={handleStartNew} />
-      <div className="flex flex-row flex-grow w-full mt-6 h-full md:flex-row sm:flex-col">
-        <div className="w-[130%] max-h-screen flex flex-col justify-center items-center m-4">
+      <div className="flex lg:flex-row flex-grow w-full mt-6 h-full md:flex-col-reverse sm:flex-col-reverse">
+        <div className="lg:w-[130%] md:w-full sm:w-full max-h-screen flex flex-col justify-center items-center lg:m-4 md:m-0 sm:m-0">
           {!selectedQuestion ? (
             <>
               <SwivelInfo texts={texts} interval={3000} />
@@ -112,7 +111,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <div className="w-[70%] max-h-screen flex flex-col items-center m-4 bg-[#F9F9F9] justify-center rounded-lg">
+        <div className="lg:w-[70%] md:w-full sm:w-full max-h-screen h-auto flex flex-col items-center m-2 md:mt-5 sm:mt-5 lg:pt-0 md:pt-8 sm:pt-8 bg-[#F9F9F9] justify-center rounded-lg">
           <b className="text-xl">Apply to our partnered universities</b>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
             {logos.map((logo, index) => (
