@@ -1,8 +1,8 @@
-import { OpenAIEmbeddings} from '@langchain/openai';
-import { RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
-import { OpenAI } from '@langchain/openai';
-import { loadQAStuffChain } from 'langchain/chains';
-import { Document } from 'langchain/document';
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { OpenAI } from "@langchain/openai";
+import { loadQAStuffChain } from "langchain/chains";
+import { Document } from "langchain/document";
 // import { timeout } from './config';
 
 import questionnaireData from "@app/data/questionnaire-data.json";
@@ -25,19 +25,23 @@ export const fetchQuestions = () => {
   return chosenQuestions;
 };
 
-export const createPineconeIndex = async (pineconeClient: any, indexName: string, vectorDimension: number) => {
+export const createPineconeIndex = async (
+  pineconeClient: any,
+  indexName: string,
+  vectorDimension: number
+) => {
   console.log(`Creating "${indexName}"...`);
 
   // 1. Create the index
   await pineconeClient.createIndex({
     name: indexName,
     dimension: vectorDimension,
-    metric: 'cosine',
+    metric: "cosine",
     spec: {
       serverless: {
-        cloud: 'aws',
-        region: 'us-east-1'
-      }
+        cloud: "aws",
+        region: "us-east-1",
+      },
     },
   });
   // 2. Wait for the index to become active
@@ -48,10 +52,14 @@ export const createPineconeIndex = async (pineconeClient: any, indexName: string
   //   maxTime: timeout,
   // });
 
-  console.log('Index is active.');
-}
+  console.log("Index is active.");
+};
 
-export const updatePineconeIndex = async (client: any, indexName: string, documents: any) => {
+export const updatePineconeIndex = async (
+  client: any,
+  indexName: string,
+  documents: any
+) => {
   // 1. Retrieve the index's information
   const index = client.Index(indexName);
   console.log(`Retrieving information for index "${indexName}"...`);
@@ -71,16 +79,16 @@ export const updatePineconeIndex = async (client: any, indexName: string, docume
     const chunks = await textSplitter.createDocuments([text]);
 
     // 5. Embed the chunks using the OpenAI Embeddings API
-    console.log('Embedding the chunks...');
+    console.log("Embedding the chunks...");
     const embeddingsArray = await new OpenAIEmbeddings({
-      openAIApiKey: process.env.OPENAI_API_KEY,
-      apiKey: process.env.OPENAI_API_KEY,
+      openAIApiKey: process.env.OPENAI_API_KEY!,
+      apiKey: process.env.OPENAI_API_KEY!,
     }).embedDocuments(
-      chunks.map((chunk) => chunk.pageContent.replace(/\n/g, ' '))
+      chunks.map((chunk) => chunk.pageContent.replace(/\n/g, " "))
     );
 
     // 6. Add the embeddings to the index
-    console.log('Adding the embeddings to the index...');
+    console.log("Adding the embeddings to the index...");
     const batchSize = 100;
     let batch: any = [];
     for (let i = 0; i < embeddingsArray.length; i++) {
@@ -103,17 +111,21 @@ export const updatePineconeIndex = async (client: any, indexName: string, docume
       }
     }
   }
-}
+};
 
-export const queryLLM = async (client: any, indexName: string, llmPrompt: string) => {
+export const queryLLM = async (
+  client: any,
+  indexName: string,
+  llmPrompt: string
+) => {
   // 1. Retrieve Pinecone index
   const index = client.Index(indexName);
   console.log(`Retrieved "${index.indexName}"...`);
 
   // 2. Create query embedding
   const queryEmbedding = await new OpenAIEmbeddings({
-    openAIApiKey: process.env.OPENAI_API_KEY,
-    apiKey: process.env.OPENAI_API_KEY,
+    openAIApiKey: process.env.OPENAI_API_KEY!,
+    apiKey: process.env.OPENAI_API_KEY!,
   }).embedQuery(llmPrompt);
 
   const queryResponse = await index.query({
@@ -127,7 +139,7 @@ export const queryLLM = async (client: any, indexName: string, llmPrompt: string
   console.log(`Found ${queryResponse.matches.length} matches.`);
 
   // 4. Log the prompt
-  console.log('Prompt:', llmPrompt);
+  console.log("Prompt:", llmPrompt);
 
   if (queryResponse.matches.length) {
     const llm = new OpenAI();
@@ -150,4 +162,4 @@ export const queryLLM = async (client: any, indexName: string, llmPrompt: string
   } else {
     return "Sorry, we were unable to find the answer to your question.";
   }
-}
+};
