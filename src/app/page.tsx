@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { UpArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
+import OpenAI from "openai";
 
 export default function Home() {
   const texts = [
@@ -16,6 +17,11 @@ export default function Home() {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const logos = Array.from({ length: 18 }, (_, i) => `${i + 1}.png`);
+
+  const openAI = new OpenAI({
+    apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
+    dangerouslyAllowBrowser: true,
+  });
 
   useEffect(() => {
     const randomQuestionsArr: string[] = questionnaireData.map(
@@ -31,19 +37,36 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
-    const chatGPTresponse = await fetch("/api/chatgpt/assistant", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: message }),
+    /* We first create a thread for the assistant, using which we run the query */
+    const thread = await openAI.beta.threads.create();
+    await openAI.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: message,
     });
 
-    if (!chatGPTresponse.ok) {
-      throw new Error("Network response was not ok");
+    const run = await openAI.beta.threads.runs.create(thread.id, {
+      assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
+    });
+
+    await checkStatus(thread.id, run.id);
+    const messages: any = await openAI.beta.threads.messages.list(thread.id);
+
+    return formatTextToHTML(messages.body.data[0].content[0].text.value);
+  };
+
+  const checkStatus = async (threadId: string, runId: string) => {
+    let isComplete = false;
+    while (!isComplete) {
+      const runStatus = await openAI.beta.threads.runs.retrieve(
+        threadId,
+        runId
+      );
+      if (runStatus.status === "completed") {
+        isComplete = true;
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
     }
-    const data = await chatGPTresponse.json();
-    return formatTextToHTML(data.response);
   };
 
   const formatTextToHTML = (text: string) => {
