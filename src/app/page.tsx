@@ -154,10 +154,11 @@ export default function Home() {
                     )?.college;
 
                     if (collegeName) {
-                      setSelectedQuestion(
-                        `Give me an overview of ${collegeName}`
-                      );
-                      handleSearchSubmit();
+                      setSelectedQuestion(null);
+                      setTimeout(() => {
+                        setSelectedQuestion(`Give me an overview of ${collegeName}`);
+                        handleSearchSubmit();
+                      }, 0);
                     }
                   }}
                 />
