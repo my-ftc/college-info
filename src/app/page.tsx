@@ -2,6 +2,7 @@
 
 import Header from "@components/Header";
 import questionnaireData from "@app/data/questionnaire-data.json";
+import imageCollegeMapping from "@app/data/logo-college-mapping.json";
 import { useEffect, useState } from "react";
 import { UpArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
@@ -145,7 +146,20 @@ export default function Home() {
                 <img
                   src={`/assets/college-logos/${logo}`}
                   alt={`Logo ${index + 1}`}
-                  className="h-20 w-20 object-contain grayscale-0"
+                  className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
+                  onClick={() => {
+                    const logoNumber = logo.split(".")[0];
+                    const collegeName = imageCollegeMapping.find(
+                      (collegeName) => collegeName.file === logoNumber
+                    )?.college;
+
+                    if (collegeName) {
+                      setSelectedQuestion(
+                        `Give me an overview of ${collegeName}`
+                      );
+                      handleSearchSubmit();
+                    }
+                  }}
                 />
               </div>
             ))}
