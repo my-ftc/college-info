@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Message } from "react-chat-ui";
 import { CopyIcon, UpArrowIcon } from "../app/utils/commonIcons";
+import DOMPurify from 'dompurify';
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -13,16 +14,14 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageLoading, setMessageLoading] = useState<boolean>(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null); // Ref to track the end of the message list
-  const hasFetchedInitialMessage = useRef(false); // Guard to ensure initial message isn't fetched twice
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasFetchedInitialMessage = useRef(false);
 
-  // Scroll to the bottom of the chat whenever new messages are added
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    // Prevent this effect from running twice in development mode
     if (hasFetchedInitialMessage.current) return;
 
     if (selectedQuestion) {
@@ -79,16 +78,29 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
     }
   };
 
+  const formatTextToHTML = (text: string) => {
+    let formattedText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    formattedText = formattedText.replace(/### (\S+)/g, "<strong>$1</strong>");
+    formattedText = formattedText.replace(/\n/g, "<br />");
+    formattedText = formattedText.replace(/【\d+:\d+†source】/g, "");
+    formattedText = formattedText.replace(
+      /<a href="(.*?)">(.*?)<\/a>/g,
+      `<a href="$1" target="_blank" rel="noopener noreferrer">
+        <button class="bg-cyan-700 hover:bg-cyan-900 text-white py-2 px-3 rounded mt-4">
+          Apply to $2
+        </button>
+      </a>`
+    );
+    return DOMPurify.sanitize(formattedText);
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-220px)]">
         {messages.map((msg, index) => {
           if (msg.id === 1) {
             return (
-              <div
-                key={index}
-                className="flex mb-2 justify-end items-end gap-2"
-              >
+              <div key={index} className="flex mb-2 justify-end items-end gap-2">
                 <div
                   className={`p-4 rounded-lg bg-cyan-700 text-white`}
                   style={{ maxWidth: "70%" }}
@@ -107,15 +119,12 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
             );
           } else {
             return (
-              <div
-                key={index}
-                className={`flex justify-start mt-6 mb-6 items-end gap-2`}
-              >
+              <div key={index} className={`flex justify-start mt-6 mb-6 items-end gap-2`}>
                 <div
                   className={`p-4 rounded-lg text-black bg-gray-100`}
                   style={{ maxWidth: "100%" }}
-                  dangerouslySetInnerHTML={{ __html: msg.message }}
-                ></div>
+                  dangerouslySetInnerHTML={{ __html: formatTextToHTML(msg.message) }}
+                />
                 <div
                   className="cursor-pointer"
                   onClick={async () => {
@@ -138,7 +147,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
             </div>
           </div>
         )}
-        {/* Invisible div to mark the end of the messages */}
         <div ref={messagesEndRef} />
       </div>
       <div className="flex flex-row w-full items-center gap-2 mt-4 justify-center">
@@ -148,7 +156,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               if (e.shiftKey) {
-                return; // Allow new line
+                return;
               } else {
                 e.preventDefault();
                 handleSendMessage();
@@ -156,15 +164,12 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
             }
           }}
           className="w-[70%] rounded-md border-2 pl-3 resize-none h-auto"
-          placeholder="Message KollegeGPT"
+          placeholder="Message KollegeAI"
           disabled={messageLoading}
         />
         <button
-          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${
-            messageLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-cyan-700 hover:bg-cyan-900"
-          }`}
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading ? "bg-gray-400 cursor-not-allowed" : "bg-cyan-700 hover:bg-cyan-900"
+            }`}
           onClick={handleSendMessage}
           disabled={messageLoading}
         >

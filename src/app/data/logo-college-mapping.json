@@ -9,11 +9,11 @@
   },
   {
     "file": "3",
-    "college": "SIBM Pune"
+    "college": "IMI New Delhi"
   },
   {
     "file": "4",
-    "college": "S P Jain School of Global Management"
+    "college": "IMT Hyderabad"
   },
   {
     "file": "5",
@@ -29,11 +29,11 @@
   },
   {
     "file": "8",
-    "college": "Presidency University"
+    "college": "LIBA"
   },
   {
     "file": "9",
-    "college": "NMIMS"
+    "college": "IIM Bangalore"
   },
   {
     "file": "10",
@@ -41,34 +41,46 @@
   },
   {
     "file": "11",
-    "college": "ISBR Business School"
+    "college": "XIM University"
   },
   {
     "file": "12",
-    "college": "Lovely Professional University"
+    "college": "ISB"
   },
   {
     "file": "13",
-    "college": "IBS Hyderabad"
+    "college": "Amity University"
   },
   {
     "file": "14",
-    "college": "Goa Institute of Management"
+    "college": "Vinod Gupta School of Management"
   },
   {
     "file": "15",
-    "college": "Great Lakes"
+    "college": "UPES"
   },
   {
     "file": "16",
-    "college": "GITAM University"
+    "college": "UEM"
   },
   {
     "file": "17",
-    "college": "Anna University"
+    "college": "XISS"
   },
   {
     "file": "18",
-    "college": "Amity University"
+    "college": "Universal AI University"
+  },
+  {
+    "file": "19",
+    "college": "ISME"
+  },
+  {
+    "file": "20",
+    "college": "XLRI"
+  },
+  {
+    "file": "21",
+    "college": "KJ Somaiya Institute of Management"
   }
 ]

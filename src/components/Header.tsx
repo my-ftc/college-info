@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ onStartNew }) => {
       </div>
 
       <h1 className="text-2xl font-extrabold flex justify-center font-latoSemiBold">
-        KollegeGPT
+        KollegeAI
       </h1>
 
       <div className="w-16"></div>

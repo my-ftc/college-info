@@ -17,7 +17,7 @@ export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const logos = Array.from({ length: 18 }, (_, i) => `${i + 1}.png`);
+  const logos = Array.from({ length: 21 }, (_, i) => `${i + 1}.png`);
 
   const openAI = new OpenAI({
     apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
@@ -52,7 +52,7 @@ export default function Home() {
     await checkStatus(thread.id, run.id);
     const messages: any = await openAI.beta.threads.messages.list(thread.id);
 
-    return formatTextToHTML(messages.body.data[0].content[0].text.value);
+    return messages.body.data[0].content[0].text.value;
   };
 
   const checkStatus = async (threadId: string, runId: string) => {
@@ -68,14 +68,6 @@ export default function Home() {
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
-  };
-
-  const formatTextToHTML = (text: string) => {
-    let formattedText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    formattedText = formattedText.replace(/### (\S+)/g, "**$1**");
-    formattedText = formattedText.replace(/\n/g, "<br />");
-    formattedText = formattedText.replace(/【\d+:\d+†source】/g, "");
-    return formattedText;
   };
 
   const handleSearchSubmit = () => {
@@ -113,7 +105,7 @@ export default function Home() {
                 <input
                   type="text"
                   className="w-[70%] h-11 rounded-md border-2 pl-3"
-                  placeholder="Start your chat with KollegeGPT"
+                  placeholder="Start your chat with KollegeAI"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
@@ -138,32 +130,37 @@ export default function Home() {
         <div className="lg:w-[70%] md:w-full sm:w-full max-h-screen h-auto flex flex-col items-center m-2 md:mt-5 sm:mt-5 lg:pt-0 md:pt-8 sm:pt-8 bg-[#F9F9F9] justify-center rounded-lg">
           <b className="text-xl">Apply to our partnered universities</b>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
-            {logos.map((logo, index) => (
-              <div
-                key={index}
-                className="flex justify-center items-center p-3 border border-gray-200 rounded"
-              >
-                <img
-                  src={`/assets/college-logos/${logo}`}
-                  alt={`Logo ${index + 1}`}
-                  className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
-                  onClick={() => {
-                    const logoNumber = logo.split(".")[0];
-                    const collegeName = imageCollegeMapping.find(
-                      (collegeName) => collegeName.file === logoNumber
-                    )?.college;
+            {logos.map((logo, index) => {
+              const logoNumber = logo.split(".")[0];
+              const collegeName = imageCollegeMapping.find(
+                (college) => college.file === logoNumber
+              )?.college;
 
-                    if (collegeName) {
-                      setSelectedQuestion(null);
-                      setTimeout(() => {
-                        setSelectedQuestion(`Give me an overview of ${collegeName}`);
-                        handleSearchSubmit();
-                      }, 0);
-                    }
-                  }}
-                />
-              </div>
-            ))}
+              console.log(`Logo: ${logo}, College Name: ${collegeName}`);
+
+              return (
+                <div
+                  key={index}
+                  className="flex justify-center items-center p-3 border border-gray-200 rounded"
+                >
+                  <img
+                    src={`/assets/college-logos/${logo}`}
+                    alt={`Logo ${index + 1}`}
+                    className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
+                    title={collegeName || "College Logo"}
+                    onClick={() => {
+                      if (collegeName) {
+                        setSelectedQuestion(null);
+                        setTimeout(() => {
+                          setSelectedQuestion(`Give me an overview of ${collegeName}`);
+                          handleSearchSubmit();
+                        }, 0);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
