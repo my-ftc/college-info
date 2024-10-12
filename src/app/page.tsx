@@ -17,6 +17,7 @@ export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [threadId, setThreadId] = useState<string | null>(null);
   const logos = Array.from({ length: 21 }, (_, i) => `${i + 1}.png`);
 
   const openAI = new OpenAI({
@@ -38,19 +39,24 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
-    /* We first create a thread for the assistant, using which we run the query */
-    const thread = await openAI.beta.threads.create();
-    await openAI.beta.threads.messages.create(thread.id, {
+    let currentThreadId = threadId;
+    if (!currentThreadId) {
+      const thread = await openAI.beta.threads.create();
+      currentThreadId = thread.id;
+      setThreadId(thread.id); // Save thread ID in state
+    }
+
+    await openAI.beta.threads.messages.create(currentThreadId, {
       role: "user",
       content: message,
     });
 
-    const run = await openAI.beta.threads.runs.create(thread.id, {
+    const run = await openAI.beta.threads.runs.create(currentThreadId, {
       assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
     });
 
-    await checkStatus(thread.id, run.id);
-    const messages: any = await openAI.beta.threads.messages.list(thread.id);
+    await checkStatus(currentThreadId, run.id);
+    const messages: any = await openAI.beta.threads.messages.list(currentThreadId);
 
     return messages.body.data[0].content[0].text.value;
   };
