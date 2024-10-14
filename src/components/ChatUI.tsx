@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Message } from "react-chat-ui";
 import { CopyIcon, UpArrowIcon } from "../app/utils/commonIcons";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -91,7 +91,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         </button>
       </a>`
     );
-    return DOMPurify.sanitize(formattedText);
+    return formattedText;
   };
 
   return (
@@ -100,7 +100,10 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
         {messages.map((msg, index) => {
           if (msg.id === 1) {
             return (
-              <div key={index} className="flex mb-2 justify-end items-end gap-2">
+              <div
+                key={index}
+                className="flex mb-2 justify-end items-end gap-2"
+              >
                 <div
                   className={`p-4 rounded-lg bg-cyan-700 text-white`}
                   style={{ maxWidth: "70%" }}
@@ -119,11 +122,16 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
             );
           } else {
             return (
-              <div key={index} className={`flex justify-start mt-6 mb-6 items-end gap-2`}>
+              <div
+                key={index}
+                className={`flex justify-start mt-6 mb-6 items-end gap-2`}
+              >
                 <div
                   className={`p-4 rounded-lg text-black bg-gray-100`}
                   style={{ maxWidth: "100%" }}
-                  dangerouslySetInnerHTML={{ __html: formatTextToHTML(msg.message) }}
+                  dangerouslySetInnerHTML={{
+                    __html: formatTextToHTML(msg.message),
+                  }}
                 />
                 <div
                   className="cursor-pointer"
@@ -168,8 +176,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           disabled={messageLoading}
         />
         <button
-          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading ? "bg-gray-400 cursor-not-allowed" : "bg-cyan-700 hover:bg-cyan-900"
-            }`}
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${
+            messageLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-cyan-700 hover:bg-cyan-900"
+          }`}
           onClick={handleSendMessage}
           disabled={messageLoading}
         >
