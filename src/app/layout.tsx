@@ -15,8 +15,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "College Info",
-  description: "College Info app",
+  title: "KollegeAI",
+  description:
+    "KollegeAI is an AI-powered interactive Q&A assistant that quickly provides pinpointed and sharp answers to questions related to MBA admissions.",
 };
 
 export default function RootLayout({
