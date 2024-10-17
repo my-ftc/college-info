@@ -56,7 +56,9 @@ export default function Home() {
     });
 
     await checkStatus(currentThreadId, run.id);
-    const messages: any = await openAI.beta.threads.messages.list(currentThreadId);
+    const messages: any = await openAI.beta.threads.messages.list(
+      currentThreadId
+    );
 
     return messages.body.data[0].content[0].text.value;
   };
@@ -135,14 +137,12 @@ export default function Home() {
         </div>
         <div className="lg:w-[70%] md:w-full sm:w-full max-h-screen h-auto flex flex-col items-center m-2 md:mt-5 sm:mt-5 lg:pt-0 md:pt-8 sm:pt-8 bg-[#F9F9F9] justify-center rounded-lg">
           <b className="text-xl">Apply to our partnered universities</b>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
+          <div className="grid lg:grid-cols-5 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
             {logos.map((logo, index) => {
               const logoNumber = logo.split(".")[0];
               const collegeName = imageCollegeMapping.find(
                 (college) => college.file === logoNumber
               )?.college;
-
-              console.log(`Logo: ${logo}, College Name: ${collegeName}`);
 
               return (
                 <div
@@ -158,7 +158,9 @@ export default function Home() {
                       if (collegeName) {
                         setSelectedQuestion(null);
                         setTimeout(() => {
-                          setSelectedQuestion(`Give me an overview of ${collegeName}`);
+                          setSelectedQuestion(
+                            `Give me an overview of ${collegeName}`
+                          );
                           handleSearchSubmit();
                         }, 0);
                       }
