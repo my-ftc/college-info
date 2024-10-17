@@ -23,9 +23,11 @@ const Header: React.FC<HeaderProps> = ({ onStartNew }) => {
 
   return (
     <header className="flex justify-between items-center w-full p-4 bg-gray-100 shadow-sm">
-      <h1 className="text-2xl font-extrabold flex justify-center font-latoSemiBold ml-10">
-        KollegeAI
-      </h1>
+      <img
+        src={`/assets/kollegeai/kollege-ai-full.png`}
+        className="h-auto w-40 object-contain grayscale-0 cursor-pointer overflow-hidden ml-8"
+        title="Kollege AI"
+      />
 
       <div className="relative group mr-4">
         <button

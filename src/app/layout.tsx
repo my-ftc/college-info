@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: "KollegeAI - AI Powered Q&A Assistant for MBA Admissions",
   description:
     "KollegeAI helps prospective students quickly find accurate answers to their MBA admissions questions through an AI-powered, interactive Q&A platform. Simplify your search and get sharp, relevant information instantly.",
+  icons: {
+    icon: "/icon/kollege-ai-letter.png", // You can specify a PNG or other formats
+    shortcut: "/icon/kollege-ai-letter.png", // Define a shortcut icon if needed
+    apple: "/icon/kollege-ai-letter.png", // Define an Apple touch icon
+  },
 };
 
 export default function RootLayout({
