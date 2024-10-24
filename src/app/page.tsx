@@ -18,7 +18,7 @@ export default function Home() {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [threadId, setThreadId] = useState<string | null>(null);
-  const logos = Array.from({ length: 21 }, (_, i) => `${i + 1}.png`);
+  const logos = Array.from({ length: 20 }, (_, i) => `${i + 1}.png`);
 
   const openAI = new OpenAI({
     apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
@@ -97,7 +97,7 @@ export default function Home() {
           <b className="lg:text-xl md:text-xl sm:text-xl xs:text-sm">
             Apply to our partnered universities
           </b>
-          <div className="grid lg:grid-cols-5 sm:grid-cols-4 md:grid-cols-4 xs:grid-cols-6 gap-4 p-5">
+          <div className="grid lg:grid-cols-5 sm:grid-cols-4 md:grid-cols-4 xs:grid-cols-5 gap-4 p-5">
             {logos.map((logo, index) => {
               const logoNumber = logo.split(".")[0];
               const collegeName = imageCollegeMapping.find(
@@ -112,7 +112,7 @@ export default function Home() {
                   <img
                     src={`/assets/college-logos/${logo}`}
                     alt={`Logo ${index + 1}`}
-                    className="lg:h-20 lg:w-20 md:h-20 md:w-20 sm:h-20 sm:w-20 object-contain grayscale-0 cursor-pointer xs:h-5 xs:w-5"
+                    className="lg:h-20 lg:w-20 md:h-20 md:w-20 sm:h-20 sm:w-20 object-contain grayscale-0 cursor-pointer xs:h-10 xs:w-20"
                     title={collegeName || "College Logo"}
                     onClick={() => {
                       if (collegeName) {
