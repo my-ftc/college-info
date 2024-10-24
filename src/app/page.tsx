@@ -18,7 +18,7 @@ export default function Home() {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [threadId, setThreadId] = useState<string | null>(null);
-  const logos = Array.from({ length: 21 }, (_, i) => `${i + 1}.png`);
+  const logos = Array.from({ length: 20 }, (_, i) => `${i + 1}.png`);
 
   const openAI = new OpenAI({
     apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
@@ -92,16 +92,54 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
       <Header onStartNew={handleStartNew} />
-      <div className="flex lg:flex-row flex-grow w-full mt-6 h-full md:flex-col-reverse sm:flex-col-reverse">
-        <div className="lg:w-[130%] md:w-full sm:w-full max-h-screen flex flex-col justify-center items-center lg:m-4 md:m-0 sm:m-0">
+      <div className="flex lg:flex-row-reverse flex-grow w-full mt-6 h-full md:flex-col sm:flex-col xs:flex-col">
+        <div className="lg:w-[70%] md:w-full sm:w-full h-auto flex flex-col items-center lg:m-2 md:mt-5 sm:mt-5 lg:pt-0 md:pt-8 sm:pt-8 xs:pt-8 bg-[#F9F9F9] justify-center rounded-lg">
+          <b className="lg:text-xl md:text-xl sm:text-xl xs:text-sm">
+            Apply to our partnered universities
+          </b>
+          <div className="grid lg:grid-cols-5 sm:grid-cols-4 md:grid-cols-4 xs:grid-cols-5 gap-4 p-5">
+            {logos.map((logo, index) => {
+              const logoNumber = logo.split(".")[0];
+              const collegeName = imageCollegeMapping.find(
+                (college) => college.file === logoNumber
+              )?.college;
+
+              return (
+                <div
+                  key={index}
+                  className="flex justify-center items-center p-3 border border-gray-200 rounded"
+                >
+                  <img
+                    src={`/assets/college-logos/${logo}`}
+                    alt={`Logo ${index + 1}`}
+                    className="lg:h-20 lg:w-20 md:h-20 md:w-20 sm:h-20 sm:w-20 object-contain grayscale-0 cursor-pointer xs:h-10 xs:w-20"
+                    title={collegeName || "College Logo"}
+                    onClick={() => {
+                      if (collegeName) {
+                        setSelectedQuestion(null);
+                        setTimeout(() => {
+                          setSelectedQuestion(
+                            `Give me an overview of ${collegeName}`
+                          );
+                          handleSearchSubmit();
+                        }, 0);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="lg:w-[130%] md:w-full sm:w-full max-h-screen flex flex-col justify-center items-center lg:m-4 md:m-0 sm:m-0 mb-10">
           {!selectedQuestion ? (
-            <>
+            <div className="mb-10">
               <SwivelInfo texts={texts} interval={3000} />
-              <div className="flex flex-row justify-around gap-3 mb-10 mt-20">
+              <div className="flex lg:flex-row justify-around gap-3 mb-10 lg:mt-20 md:mt-20 sm:mt-10 xs:mt-10 p-2 md:flex-row sm:flex-col xs:flex-col w-full items-center">
                 {randomQuestions.map((question: string, index: number) => (
                   <div
                     key={index}
-                    className="bg-white hover:bg-[#F9F9F9] p-6 w-[25%] rounded-lg text-center cursor-pointer border-2"
+                    className="bg-white hover:bg-[#F9F9F9] p-6 lg:w-[25%] md:w-[25%] sm:w-[75%] xs:w-[75%] rounded-lg text-center cursor-pointer border-2 lg:min-h-36 md:min-h-36 sm:min-h-36 xs:min-h-20 h-auto inline align-middle"
                     onClick={() => setSelectedQuestion(question)}
                   >
                     <p className="font-bold">{question}</p>
@@ -125,7 +163,7 @@ export default function Home() {
                   <UpArrowIcon />
                 </button>
               </div>
-            </>
+            </div>
           ) : (
             <div className="flex flex-col w-full h-full p-0">
               <ChatUI
@@ -134,42 +172,6 @@ export default function Home() {
               />
             </div>
           )}
-        </div>
-        <div className="lg:w-[70%] md:w-full sm:w-full max-h-screen h-auto flex flex-col items-center m-2 md:mt-5 sm:mt-5 lg:pt-0 md:pt-8 sm:pt-8 bg-[#F9F9F9] justify-center rounded-lg">
-          <b className="text-xl">Apply to our partnered universities</b>
-          <div className="grid lg:grid-cols-5 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5">
-            {logos.map((logo, index) => {
-              const logoNumber = logo.split(".")[0];
-              const collegeName = imageCollegeMapping.find(
-                (college) => college.file === logoNumber
-              )?.college;
-
-              return (
-                <div
-                  key={index}
-                  className="flex justify-center items-center p-3 border border-gray-200 rounded"
-                >
-                  <img
-                    src={`/assets/college-logos/${logo}`}
-                    alt={`Logo ${index + 1}`}
-                    className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
-                    title={collegeName || "College Logo"}
-                    onClick={() => {
-                      if (collegeName) {
-                        setSelectedQuestion(null);
-                        setTimeout(() => {
-                          setSelectedQuestion(
-                            `Give me an overview of ${collegeName}`
-                          );
-                          handleSearchSubmit();
-                        }, 0);
-                      }
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
         </div>
       </div>
     </div>
