@@ -191,12 +191,12 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
                       <CopyIcon />
                     </div>
                   </div>
-                  <div className="flex flex-row justify-around gap-3 mb-10">
+                  <div className="flex lg:flex-row md:flex-row sm:flex-row xs:flex-col justify-around gap-3 mb-10">
                     {generateQuestions().map(
                       (question: string, index: number) => (
                         <div
                           key={index}
-                          className="bg-white hover:bg-[#F9F9F9] p-2 w-[25%] rounded-lg text-center cursor-pointer border-2"
+                          className="bg-white hover:bg-[#F9F9F9] p-2 lg:w-[25%] md:w-[25%] sm:w-[25%] xs:w-[100%] rounded-lg text-center cursor-pointer border-2"
                           onClick={() => {
                             handleSendMessageFromGeneratedQuestions(question);
                           }}
