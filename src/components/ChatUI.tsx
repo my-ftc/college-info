@@ -33,7 +33,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   }, [selectedQuestion]);
 
   useEffect(() => {
-    scrollToBottom();
+    /*scrollToBottom();*/
   }, [messages]);
 
   const handleInitialMessage = async (message: string) => {
