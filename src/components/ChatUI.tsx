@@ -17,10 +17,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasFetchedInitialMessage = useRef(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
     if (hasFetchedInitialMessage.current) return;
 
@@ -31,10 +27,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
       handleInitialMessage(selectedQuestion);
     }
   }, [selectedQuestion]);
-
-  useEffect(() => {
-    /*scrollToBottom();*/
-  }, [messages]);
 
   const handleInitialMessage = async (message: string) => {
     try {
