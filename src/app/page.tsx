@@ -4,7 +4,7 @@ import Header from "@components/Header";
 import questionnaireData from "@app/data/questionnaire-data.json";
 import imageCollegeMapping from "@app/data/logo-college-mapping.json";
 import { useEffect, useState } from "react";
-import { UpArrowIcon } from "./utils/commonIcons";
+import { UpArrowIcon, ArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
 import OpenAI from "openai";
@@ -36,6 +36,16 @@ export default function Home() {
 
     return () => clearInterval(intervalId);
   }, [logos.length]);
+
+  const handleCarouselScroll = (direction: "left" | "right") => {
+    setCurrentIndex((prevIndex) => {
+      if (direction === "right") {
+        return (prevIndex + 4) % logos.length;
+      } else {
+        return (prevIndex - 4 + logos.length) % logos.length; // Ensure it wraps around
+      }
+    });
+  };
 
   const visibleLogos = logos
     .slice(currentIndex, currentIndex + 4)
@@ -125,21 +135,57 @@ export default function Home() {
         {isSmallScreen && (
           <div className="flex flex-col justify-center items-center">
             <b className="text-lg">Apply to our partnered universities</b>
-            <div className="grid lg:grid-cols-5 sm:grid-cols-12 sm:grid-rows-1 md:grid-cols-4 gap-4 p-5">
-              {/* Carousel Container */}
-              <div className="flex flex-row items-center space-x-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
-                {visibleLogos.map((logo, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-row flex-shrink-0 w-20 h-20 p-4 justify-center items-center align-middle rounded-md snap-center"
-                  >
-                    <img
-                      src={`/assets/college-logos/${logo}`}
-                      alt={`Logo ${index + 1}`}
-                      className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
-                    />
-                  </div>
-                ))}
+            <div className="relative p-5">
+              <div className="flex flex-row items-center rounded-md p-2">
+                {/* Left Arrow Button */}
+                <button
+                  className="flex justify-center items-center w-7 h-7 bg-gray-100 rounded-full hover:bg-gray-300 focus:outline-none"
+                  onClick={() => handleCarouselScroll("left")}
+                >
+                  <ArrowIcon direction="left" />
+                </button>
+
+                {/* Carousel Items */}
+                <div className="flex flex-row items-center space-x-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+                  {visibleLogos.map((logo, index) => {
+                    const logoNumber = logo.split(".")[0];
+                    const collegeName = imageCollegeMapping.find(
+                      (college) => college.file === logoNumber
+                    )?.college;
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-row flex-shrink-0 w-20 h-20 p-4 justify-center items-center align-middle rounded-md snap-center"
+                      >
+                        <img
+                          src={`/assets/college-logos/${logo}`}
+                          alt={`Logo ${index + 1}`}
+                          className="h-20 w-20 object-contain grayscale-0 cursor-pointer"
+                          title={collegeName || "College Logo"}
+                          onClick={() => {
+                            if (collegeName) {
+                              setSelectedQuestion(null);
+                              setTimeout(() => {
+                                setSelectedQuestion(
+                                  `Give me an overview of ${collegeName}`
+                                );
+                                handleSearchSubmit();
+                              }, 0);
+                            }
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Right Arrow Button */}
+                <button
+                  className="flex justify-center items-center w-7 h-7 bg-gray-100 rounded-full hover:bg-gray-300 focus:outline-none"
+                  onClick={() => handleCarouselScroll("right")}
+                >
+                  <ArrowIcon direction="right" />
+                </button>
               </div>
             </div>
           </div>

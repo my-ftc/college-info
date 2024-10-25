@@ -20,6 +20,21 @@ export const UpArrowIcon = () => {
   );
 };
 
+type Direction = "left" | "right";
+
+export const ArrowIcon = ({ direction }: { direction: Direction }) => {
+  const arrowStyle = "text-2xl cursor-pointer";
+
+  switch (direction) {
+    case "left":
+      return <span className={`${arrowStyle}`}>&lt;</span>; // Left arrow as '<'
+    case "right":
+      return <span className={`${arrowStyle}`}>&gt;</span>; // Right arrow as '>'
+    default:
+      return null;
+  }
+};
+
 export const CopyIcon = () => {
   return (
     <svg
