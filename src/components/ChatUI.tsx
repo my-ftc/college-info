@@ -106,13 +106,14 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
     );
 
     formattedText = formattedText.replace(
-      /<a href="(.*?)">(.*?)<\/a>/g,
-      `<a href="$1" target="_blank" rel="noopener noreferrer">
+      /<a\s+href=(["'])(.*?)\1>(.*?)<\/a>/g,
+      `<a href="$2" target="_blank" rel="noopener noreferrer">
         <button class="bg-cyan-700 hover:bg-cyan-900 text-white py-2 px-3 rounded mt-4">
-          Apply to $2
+          Apply to $3
         </button>
       </a>`
     );
+
     return formattedText;
   };
 
@@ -257,11 +258,10 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
           disabled={messageLoading}
         />
         <button
-          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${
-            messageLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-cyan-700 hover:bg-cyan-900"
-          }`}
+          className={`cursor-pointer p-2 rounded-md transition-colors text-white ${messageLoading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-cyan-700 hover:bg-cyan-900"
+            }`}
           onClick={handleSendMessage}
           disabled={messageLoading}
         >
