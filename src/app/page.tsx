@@ -8,6 +8,7 @@ import { UpArrowIcon, ArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
 import OpenAI from "openai";
+import Footer from "@components/Footer";
 
 export default function Home() {
   const texts = [
@@ -130,7 +131,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen font-latoRegular">
-      <Header onStartNew={handleStartNew} />
+      <Header onStartNew={handleStartNew} showNewChat={true} />
       <div className="flex lg:flex-row-reverse flex-grow w-full mt-6 h-full md:flex-col sm:flex-col xs:flex-col">
         {isSmallScreen && (
           <div className="flex flex-col justify-center items-center">
@@ -275,6 +276,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
