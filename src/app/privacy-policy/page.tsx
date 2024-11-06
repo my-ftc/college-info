@@ -144,13 +144,15 @@ const page = () => {
               <strong>Grievance Redressal</strong>
               <br />
               For any discrepancies or grievances related to data processing,
-              users can contact our Grievance Officer. Here is the contact
-              information,
-              <ul>
-                <li>Grievance Officer:</li>
-                <li>Email:</li>
-                <li>Phone:</li>
-              </ul>
+              users may write to{" "}
+              <a
+                className="underline text-blue-800"
+                onClick={() => {
+                  window.location.href = `mailto:dhruv@64inspired.com?subject=Report%20a%20concern&body=Hello`;
+                }}
+              >
+                dhruv@64inspired.com.
+              </a>
             </li>
           </ol>
         </div>
