@@ -9,7 +9,6 @@ import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
 import OpenAI from "openai";
 import Footer from "@components/Footer";
-import { PrismaClient } from '@prisma/client';
 
 export default function Home() {
   const texts = [
