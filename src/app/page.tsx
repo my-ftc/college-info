@@ -23,7 +23,6 @@ export default function Home() {
   const logos = Array.from({ length: 20 }, (_, i) => `${i + 1}.png`);
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
-  const prisma = new PrismaClient();
 
   const openAI = new OpenAI({
     apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
