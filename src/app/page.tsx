@@ -9,6 +9,7 @@ import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
 import OpenAI from "openai";
 import Footer from "@components/Footer";
+import { PrismaClient } from '@prisma/client';
 
 export default function Home() {
   const texts = [
@@ -22,6 +23,7 @@ export default function Home() {
   const logos = Array.from({ length: 20 }, (_, i) => `${i + 1}.png`);
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+  const prisma = new PrismaClient();
 
   const openAI = new OpenAI({
     apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
@@ -66,6 +68,17 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
+    // Non-blocking API call to save query
+    void fetch('/api/insertQuery', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: message }),
+    }).catch((error) => {
+      console.error("Error calling insertQuery API:", error);
+    });
+
     let currentThreadId = threadId;
     if (!currentThreadId) {
       const thread = await openAI.beta.threads.create();
