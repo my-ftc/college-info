@@ -66,6 +66,17 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
+    // Non-blocking API call to save query
+    void fetch('/api/insertQuery', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: message }),
+    }).catch((error) => {
+      console.error("Error calling insertQuery API:", error);
+    });
+
     let currentThreadId = threadId;
     if (!currentThreadId) {
       const thread = await openAI.beta.threads.create();
