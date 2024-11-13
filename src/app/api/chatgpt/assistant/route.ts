@@ -11,21 +11,51 @@ export async function POST(request: NextRequest) {
     const requestBody = await request.json();
     const { query } = requestBody;
 
-    const thread = await openAI.beta.threads.create();
-    await openAI.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: query,
-    });
+    // Create threads for both assistants in parallel
+    const [thread1, thread2] = await Promise.all([
+      openAI.beta.threads.create(),
+      openAI.beta.threads.create()
+    ]);
 
-    const run = await openAI.beta.threads.runs.create(thread.id, {
-      assistant_id: process.env.ASSISTANT_ID!,
-    });
+    // Send messages to both threads in parallel
+    await Promise.all([
+      openAI.beta.threads.messages.create(thread1.id, {
+        role: "user",
+        content: query,
+      }),
+      openAI.beta.threads.messages.create(thread2.id, {
+        role: "user",
+        content: query,
+      })
+    ]);
 
-    await checkStatus(thread.id, run.id);
-    const messages: any = await openAI.beta.threads.messages.list(thread.id);
+    // Create runs for both assistants in parallel
+    const [run1, run2] = await Promise.all([
+      openAI.beta.threads.runs.create(thread1.id, {
+        assistant_id: process.env.ASSISTANT_ID!,
+      }),
+      openAI.beta.threads.runs.create(thread2.id, {
+        assistant_id: process.env.LINK_ASSISTANT_ID!,
+      })
+    ]);
+
+    // Wait for both runs to complete in parallel
+    await Promise.all([
+      checkStatus(thread1.id, run1.id),
+      checkStatus(thread2.id, run2.id)
+    ]);
+
+    // Get messages from both threads in parallel
+    const [messages1, messages2] = await Promise.all([
+      openAI.beta.threads.messages.list(thread1.id),
+      openAI.beta.threads.messages.list(thread2.id)
+    ]);
+
+    const response1: string = (messages1 as any).data[0].content[0].text.value;
+    const response2: string = (messages2 as any).data[0].content[0].text.value;
 
     return NextResponse.json(
-      { response: messages.body.data[0].content[0].text.value },
+      { response: `${response1}\n\n${response2}` },
       { status: 200 }
     );
   } catch (e) {
