@@ -18,7 +18,8 @@ export default function Home() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threadId1, setThreadId1] = useState<string | null>(null);
+  const [threadId2, setThreadId2] = useState<string | null>(null);
   const logos = Array.from({ length: 20 }, (_, i) => `${i + 1}.png`);
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
@@ -76,29 +77,64 @@ export default function Home() {
     }).catch((error) => {
       console.error("Error calling insertQuery API:", error);
     });
-
-    let currentThreadId = threadId;
-    if (!currentThreadId) {
-      const thread = await openAI.beta.threads.create();
-      currentThreadId = thread.id;
-      setThreadId(thread.id); // Save thread ID in state
+  
+    let currentThreadId1 = threadId1;
+    let currentThreadId2 = threadId2;
+  
+    // Create threads if they don't exist
+    if (!currentThreadId1) {
+      const thread1 = await openAI.beta.threads.create();
+      currentThreadId1 = thread1.id;
+      setThreadId1(thread1.id);
     }
+    if (!currentThreadId2) {
+      const thread2 = await openAI.beta.threads.create();
+      currentThreadId2 = thread2.id;
+      setThreadId2(thread2.id);
+    }
+  
+    // Send message to both assistants in parallel
+    await Promise.all([
+      openAI.beta.threads.messages.create(currentThreadId1, {
+        role: "user",
+        content: message,
+      }),
+      openAI.beta.threads.messages.create(currentThreadId2, {
+        role: "user",
+        content: message,
+      })
+    ]);
+  
+    // Create runs for both assistants in parallel
+    const [run1, run2] = await Promise.all([
+      openAI.beta.threads.runs.create(currentThreadId1, {
+        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_1!,
+      }),
+      openAI.beta.threads.runs.create(currentThreadId2, {
+        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_2!,
+      })
+    ]);
+  
+    // Wait for both runs to complete in parallel
+    await Promise.all([
+      checkStatus(currentThreadId1, run1.id),
+      checkStatus(currentThreadId2, run2.id)
+    ]);
+  
+    // Get messages from both threads in parallel
+    const [messages1, messages2] = await Promise.all([
+      openAI.beta.threads.messages.list(currentThreadId1),
+      openAI.beta.threads.messages.list(currentThreadId2)
+    ]);
 
-    await openAI.beta.threads.messages.create(currentThreadId, {
-      role: "user",
-      content: message,
-    });
+    // Combine responses
+    const response1: string = (messages1 as any).data[0].content[0].text.value;
+    const response2: string = (messages2 as any).data[0].content[0].text.value;
 
-    const run = await openAI.beta.threads.runs.create(currentThreadId, {
-      assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
-    });
-
-    await checkStatus(currentThreadId, run.id);
-    const messages: any = await openAI.beta.threads.messages.list(
-      currentThreadId
-    );
-
-    return messages.body.data[0].content[0].text.value;
+    const response2Parts = response2.split("</a>");
+    const modifiedResponse2 = response2Parts.slice(0, -1).join("</a>");
+    
+    return `${response1}\n\n${modifiedResponse2}</a>`;
   };
 
   const checkStatus = async (threadId: string, runId: string) => {
