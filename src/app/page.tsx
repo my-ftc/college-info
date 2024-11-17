@@ -45,7 +45,10 @@ export default function Home() {
 
   const [questionCount, setQuestionCount] = useState<number>(() => {
     if (typeof window !== "undefined") {
-      return parseInt(localStorage.getItem("questionCount") || "0", 10);
+      return parseInt(
+        localStorage.getItem("kollegeAIQuestionCount") || "0",
+        10
+      );
     }
     return 0; // Fallback for SSR
   });
@@ -70,7 +73,7 @@ export default function Home() {
 
   // Update localStorage whenever questionCount changes
   useEffect(() => {
-    localStorage.setItem("questionCount", questionCount.toString());
+    localStorage.setItem("kollegeAIQuestionCount", questionCount.toString());
   }, [questionCount]);
 
   const handleCarouselScroll = (direction: "left" | "right") => {
