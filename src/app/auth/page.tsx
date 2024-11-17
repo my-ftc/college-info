@@ -24,7 +24,7 @@ type LoginData = {
   password: string;
 };
 
-const page = () => {
+export default function AuthHandler() {
   const [activeTab, setActiveTab] = useState<string>("login"); // Tracks active tab
   const [loginData, setLoginData] = useState<LoginData>({
     email: "",
@@ -370,6 +370,4 @@ const page = () => {
       </div>
     </div>
   );
-};
-
-export default page;
+}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@firebase/firebase";
 import Header from "@components/Header";
 
-const page = () => {
+export default function ProfilePage() {
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -219,6 +219,4 @@ const page = () => {
       </div>
     </div>
   );
-};
-
-export default page;
+}

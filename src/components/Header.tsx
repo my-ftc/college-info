@@ -24,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
         setUserInfo(user.email!);
         setIsLoggedIn(true);
       } else {
+        setIsLoggedIn(false);
       }
     });
   }, []);
@@ -57,16 +58,17 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
                 <PersonSharpIcon />
               </button>
             </Tooltip>
-            {/*<Tooltip title={"Log Out"}>
+            <Tooltip title={"Log Out"}>
               <button
                 className="transition-all duration-200 transform hover:scale-125"
                 onClick={async () => {
                   await signOut(auth);
+                  router.push("/auth");
                 }}
               >
                 <LogoutSharpIcon />
               </button>
-            </Tooltip>*/}
+            </Tooltip>
           </div>
         )}
         {!isLoggedIn && (
