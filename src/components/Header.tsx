@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { PencilSquareIcon } from "@heroicons/react/24/solid"; // Import pencil icon
+import LogoutSharpIcon from "@mui/icons-material/LogoutSharp";
+import PersonSharpIcon from "@mui/icons-material/PersonSharp";
+import { PencilSquareIcon } from "@heroicons/react/24/solid";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import Tooltip from "@mui/material/Tooltip";
+import { useRouter } from "next/navigation";
+import { auth } from "@firebase/firebase";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -8,18 +14,22 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [userInfo, setUserInfo] = useState<string>("");
+  const router = useRouter();
 
-  const handleMouseEnter = () => {
-    setShowTooltip(true);
-    // Hide tooltip after 3 seconds
-    setTimeout(() => {
-      setShowTooltip(false);
-    }, 3000);
-  };
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserInfo(user.email!);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
+  }, []);
 
   const handleClick = () => {
-    setShowTooltip(false);
     onStartNew();
   };
 
@@ -34,21 +44,55 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
         />
       </Link>
 
-      <div className="relative group mr-4">
-        {showNewChat && (
-          <button
-            className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200 transform group-hover:scale-125"
-            onMouseEnter={handleMouseEnter}
-            onClick={handleClick}
-            aria-label="New Chat"
-          >
-            <PencilSquareIcon className="w-6 h-6 text-gray-600" />
-          </button>
+      <div className="relative group mr-4 flex flex-row space-x-3 items-center">
+        {isLoggedIn && (
+          <div className="flex flex-row space-x-3 items-center">
+            <p>Hello, {userInfo}</p>
+            <Tooltip title={"Profile"}>
+              <button
+                className="transition-all duration-200 transform hover:scale-125"
+                onClick={() => {
+                  router.push("/profile");
+                }}
+              >
+                <PersonSharpIcon />
+              </button>
+            </Tooltip>
+            <Tooltip title={"Log Out"}>
+              <button
+                className="transition-all duration-200 transform hover:scale-125"
+                onClick={async () => {
+                  await signOut(auth);
+                  router.push("/auth");
+                }}
+              >
+                <LogoutSharpIcon />
+              </button>
+            </Tooltip>
+          </div>
         )}
-        {showTooltip && showNewChat && (
-          <span className="absolute right-1/2 top-full mt-2 transform translate-x-1/2 opacity-100 bg-cyan-700 text-white text-xs rounded py-1 px-2 transition-opacity duration-200">
-            New Chat
-          </span>
+        {!isLoggedIn && (
+          <div>
+            <button
+              className="bg-cyan-700 text-white py-2 px-4 rounded-lg font-medium"
+              onClick={() => {
+                router.push("/auth");
+              }}
+            >
+              Login/Sign up
+            </button>
+          </div>
+        )}
+
+        {showNewChat && (
+          <Tooltip title={"New Chat"}>
+            <button
+              className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200 transform hover:scale-125"
+              onClick={handleClick}
+            >
+              <PencilSquareIcon className="w-6 h-6 text-gray-600" />
+            </button>
+          </Tooltip>
         )}
       </div>
     </header>
