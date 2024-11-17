@@ -18,3 +18,13 @@ model queries {
   query     String   @db.Text
   timestamp DateTime @default(now())
 }
+
+model user {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  phone     String?
+  city      String?
+  state     String?
+  createdAt DateTime @default(now())
+}
