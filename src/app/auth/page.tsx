@@ -91,13 +91,11 @@ export default function AuthHandler() {
     } else {
       if (activeTab === "login") {
         try {
-          const loggedInUser = await signInWithEmailAndPassword(
+          await signInWithEmailAndPassword(
             auth,
             loginData.email,
             loginData.password
           );
-
-          console.log("Login successful:", loggedInUser.user);
         } catch (error: any) {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -128,13 +126,11 @@ export default function AuthHandler() {
         }
       } else {
         try {
-          const userCreds = await createUserWithEmailAndPassword(
+          await createUserWithEmailAndPassword(
             auth,
             signUpData.email,
             signUpData.password
           );
-
-          console.log(userCreds);
 
           await fetch(`/api/signup`, {
             method: "POST",
