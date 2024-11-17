@@ -67,7 +67,7 @@ export default function Home() {
       }
 
       setIsLoggedIn(savedLoginStatus);
-      setIsRestricted(questionCount >= 2 && !savedLoginStatus);
+      //setIsRestricted(questionCount >= 2 && !savedLoginStatus);
     });
   }, []);
 
@@ -110,15 +110,17 @@ export default function Home() {
       return Promise.resolve(message);
     }
 
-    const newCount = questionCount + 1;
-    setQuestionCount(newCount);
+    if (!isLoggedIn) {
+      const newCount = questionCount + 1;
+      setQuestionCount(newCount);
 
-    // Restrict if the user reaches 2 questions and is not logged in
-    if (newCount > 2 && !isLoggedIn) {
-      setIsRestricted(true);
-      const message =
-        "You have reached the limit of questions. Please log in to ask more.";
-      return Promise.resolve(message);
+      // Restrict if the user reaches 2 questions and is not logged in
+      if (newCount > 2 && !isLoggedIn) {
+        setIsRestricted(true);
+        const message =
+          "You have reached the limit of questions. Please log in to ask more.";
+        return Promise.resolve(message);
+      }
     }
 
     void fetch("/api/insertQuery", {
