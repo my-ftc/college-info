@@ -37,7 +37,7 @@ export default function Home() {
     const intervalId = setInterval(() => {
       setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 4) % logos.length);
-      }, 500); // Transition duration
+      }, 500);
     }, 5000);
 
     return () => clearInterval(intervalId);
@@ -50,13 +50,12 @@ export default function Home() {
         10
       );
     }
-    return 0; // Fallback for SSR
+    return 0;
   });
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Replace with actual authentication logic
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isRestricted, setIsRestricted] = useState<boolean>(false);
 
-  // Load state from localStorage when the component mounts
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       let savedLoginStatus = true;
@@ -67,11 +66,9 @@ export default function Home() {
       }
 
       setIsLoggedIn(savedLoginStatus);
-      //setIsRestricted(questionCount >= 2 && !savedLoginStatus);
     });
   }, []);
 
-  // Update localStorage whenever questionCount changes
   useEffect(() => {
     localStorage.setItem("kollegeAIQuestionCount", questionCount.toString());
   }, [questionCount]);
@@ -81,7 +78,7 @@ export default function Home() {
       if (direction === "right") {
         return (prevIndex + 4) % logos.length;
       } else {
-        return (prevIndex - 4 + logos.length) % logos.length; // Ensure it wraps around
+        return (prevIndex - 4 + logos.length) % logos.length;
       }
     });
   };
@@ -114,7 +111,6 @@ export default function Home() {
       const newCount = questionCount + 1;
       setQuestionCount(newCount);
 
-      // Restrict if the user reaches 2 questions and is not logged in
       if (newCount > 2 && !isLoggedIn) {
         setIsRestricted(true);
         const message =
@@ -123,20 +119,17 @@ export default function Home() {
       }
     }
 
-    void fetch("/api/insertQuery", {
+    await fetch("/api/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query: message }),
-    }).catch((error) => {
-      console.error("Error calling insertQuery API:", error);
     });
 
     let currentThreadId1 = threadId1;
     let currentThreadId2 = threadId2;
 
-    // Create threads if they don't exist
     if (!currentThreadId1) {
       const thread1 = await openAI.beta.threads.create();
       currentThreadId1 = thread1.id;
@@ -148,7 +141,6 @@ export default function Home() {
       setThreadId2(thread2.id);
     }
 
-    // Send message to both assistants in parallel
     await Promise.all([
       openAI.beta.threads.messages.create(currentThreadId1, {
         role: "user",
@@ -160,7 +152,6 @@ export default function Home() {
       }),
     ]);
 
-    // Create runs for both assistants in parallel
     const [run1, run2] = await Promise.all([
       openAI.beta.threads.runs.create(currentThreadId1, {
         assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_1!,
@@ -170,19 +161,16 @@ export default function Home() {
       }),
     ]);
 
-    // Wait for both runs to complete in parallel
     await Promise.all([
       checkStatus(currentThreadId1, run1.id),
       checkStatus(currentThreadId2, run2.id),
     ]);
 
-    // Get messages from both threads in parallel
     const [messages1, messages2] = await Promise.all([
       openAI.beta.threads.messages.list(currentThreadId1),
       openAI.beta.threads.messages.list(currentThreadId2),
     ]);
 
-    // Combine responses
     const response1: string = (messages1 as any).data[0].content[0].text.value;
     const response2: string = (messages2 as any).data[0].content[0].text.value;
 

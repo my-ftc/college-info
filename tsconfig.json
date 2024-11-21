@@ -30,6 +30,9 @@
       ],
       "@firebase/*": [
         "./src/firebase/*"
+      ],
+      "@data/*": [
+        "./src/app/data/*"
       ]
     }
   },
