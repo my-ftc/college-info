@@ -7,6 +7,7 @@ import { auth } from "@firebase/firebase";
 import Header from "@components/Header";
 import IndiaCityStateMapping from "@data/state-city-mapping.json";
 import { Alert, Snackbar } from "@mui/material";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -178,10 +179,12 @@ export default function ProfilePage() {
         </h1>
         {userPhoto && (
           <div className="flex flex-row w-full items-center justify-center mb-4">
-            <img
-              className="rounded-full w-16 h-16"
-              alt={formData.name}
+            <Image
+              className="rounded-full"
               src={userPhoto}
+              width={70}
+              height={70}
+              alt={"Profile Photo"}
             />
           </div>
         )}

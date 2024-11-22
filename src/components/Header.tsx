@@ -7,6 +7,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/navigation";
 import { auth } from "@firebase/firebase";
 import Link from "next/link";
+import Image from "next/image";
 
 interface HeaderProps {
   onStartNew: () => void;
@@ -37,6 +38,8 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
     onStartNew();
   };
 
+  console.log(userPhoto);
+
   return (
     <header className="flex justify-between items-center w-full p-4 bg-gray-100 shadow-sm">
       <Link href={"/"}>
@@ -62,10 +65,12 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
                 {!userPhoto ? (
                   <PersonSharpIcon />
                 ) : (
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    alt={`${userName} display photo`}
+                  <Image
+                    className="rounded-full"
                     src={userPhoto}
+                    width={30}
+                    height={30}
+                    alt={""}
                   />
                 )}
               </button>

@@ -18,7 +18,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (userExists) {
-      return NextResponse.json({ user: userExists }, { status: 200 });
+      return NextResponse.json(
+        { user: userExists, newUser: false },
+        { status: 200 }
+      );
     } else {
       const createdUser = await prisma.user.create({
         data: {
@@ -31,7 +34,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (createdUser) {
-        return NextResponse.json({ user: createdUser }, { status: 200 });
+        return NextResponse.json(
+          { user: createdUser, newUser: true },
+          { status: 200 }
+        );
       } else {
         return NextResponse.json(
           { response: "Something went wrong, try again" },

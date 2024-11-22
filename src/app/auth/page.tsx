@@ -52,7 +52,6 @@ export default function AuthHandler() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
         router.push("/");
       } else {
       }
@@ -191,7 +190,7 @@ export default function AuthHandler() {
             signUpData.password
           );
 
-          await fetch(`/api/signup`, {
+          const signupResponse = await fetch(`/api/signup`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -204,6 +203,13 @@ export default function AuthHandler() {
               state: signUpData.state,
             }),
           });
+
+          if (signupResponse.ok) {
+            const respone = await signupResponse.json();
+            if (respone.newUser) {
+              router.push("/confirm");
+            }
+          }
         } catch (error: any) {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -244,7 +250,7 @@ export default function AuthHandler() {
       const user = result.user;
       console.log("User Info:", user);
 
-      await fetch(`/api/signup`, {
+      const signupResponse = await fetch(`/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -257,6 +263,13 @@ export default function AuthHandler() {
           state: "",
         }),
       });
+
+      if (signupResponse.ok) {
+        const respone = await signupResponse.json();
+        if (respone.newUser) {
+          router.push("/confirm");
+        }
+      }
     } catch (error) {
       console.error("Error signing in:", error);
     }
