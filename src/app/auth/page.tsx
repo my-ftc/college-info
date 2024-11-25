@@ -270,8 +270,40 @@ export default function AuthHandler() {
           router.push("/confirm");
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error signing in:", error);
+
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      switch (errorCode) {
+        case "auth/popup-closed-by-user":
+          setFirebaseError(
+            "Sign-in popup was closed before completing the sign-in."
+          );
+          break;
+        case "auth/cancelled-popup-request":
+          setFirebaseError(
+            "Sign-in popup request was canceled because another one is already open."
+          );
+          break;
+        case "auth/network-request-failed":
+          setFirebaseError(
+            "Network error. Please check your connection and try again."
+          );
+          break;
+        case "auth/operation-not-allowed":
+          setFirebaseError("This operation is not allowed.");
+          break;
+        case "auth/account-exists-with-different-credential":
+          setFirebaseError(
+            "Account exists with different credentials, please use that."
+          );
+          break;
+        default:
+          setFirebaseError(`An unknown error occurred: ${errorMessage}`);
+          break;
+      }
     }
   };
 
@@ -491,7 +523,7 @@ export default function AuthHandler() {
           </button>
 
           <GoogleSignIn handleSignIn={handleGoogleSignIn} />
-          <div>
+          <div className="flex flex-row justify-center">
             <p className="text-sm text-red-500 mt-1">{firebaseError}</p>
           </div>
         </form>
