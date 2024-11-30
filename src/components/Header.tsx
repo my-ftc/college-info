@@ -7,6 +7,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/navigation";
 import { auth } from "@firebase/firebase";
 import Link from "next/link";
+import Image from "next/image";
 
 interface HeaderProps {
   onStartNew: () => void;
@@ -16,12 +17,16 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<string>("");
+  const [userName, setUserName] = useState<string | null>("");
+  const [userPhoto, setUserPhoto] = useState<string | null>("");
   const router = useRouter();
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserInfo(user.email!);
+        setUserPhoto(user.photoURL);
+        setUserName(user.displayName);
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -32,6 +37,8 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
   const handleClick = () => {
     onStartNew();
   };
+
+  console.log(userPhoto);
 
   return (
     <header className="flex justify-between items-center w-full p-4 bg-gray-100 shadow-sm">
@@ -47,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
       <div className="relative group mr-4 flex flex-row space-x-3 items-center">
         {isLoggedIn && (
           <div className="flex flex-row space-x-3 items-center">
-            <p>Hello, {userInfo}</p>
+            <p>Hello, {userName ?? userInfo}</p>
             <Tooltip title={"Profile"}>
               <button
                 className="transition-all duration-200 transform hover:scale-125"
@@ -55,7 +62,17 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
                   router.push("/profile");
                 }}
               >
-                <PersonSharpIcon />
+                {!userPhoto ? (
+                  <PersonSharpIcon />
+                ) : (
+                  <Image
+                    className="rounded-full"
+                    src={userPhoto}
+                    width={30}
+                    height={30}
+                    alt={""}
+                  />
+                )}
               </button>
             </Tooltip>
             <Tooltip title={"Log Out"}>
@@ -79,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
                 router.push("/auth");
               }}
             >
-              Login/Sign up
+              Login
             </button>
           </div>
         )}

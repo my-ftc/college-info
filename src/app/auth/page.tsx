@@ -8,7 +8,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
+import GoogleSignIn from "@components/GoogleSignIn";
+import IndiaCityStateMapping from "@data/state-city-mapping.json";
 
 type SignUpData = {
   email: string;
@@ -25,6 +29,7 @@ type LoginData = {
 };
 
 export default function AuthHandler() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("login"); // Tracks active tab
   const [loginData, setLoginData] = useState<LoginData>({
     email: "",
@@ -40,7 +45,9 @@ export default function AuthHandler() {
   });
   const [errors, setErrors] = useState<any>({});
   const [firebaseError, setFirebaseError] = useState<string>("");
-  const router = useRouter();
+
+  const [query, setQuery] = useState<string>("");
+  const [filteredCities, setFilteredCities] = useState<any[]>([]);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -71,6 +78,46 @@ export default function AuthHandler() {
     }
   };
 
+  const handleCityInputChange = (e: any) => {
+    const input = e.target.value;
+    setQuery(input);
+
+    if (input) {
+      const filtered = IndiaCityStateMapping.flatMap((state) =>
+        state.cities.map((city) => ({
+          display: `${city.name} - ${state.stateCode}`,
+          cityName: city.name,
+          stateCode: state.stateCode,
+        }))
+      )
+        .filter((city) =>
+          city.cityName.toLowerCase().includes(input.toLowerCase())
+        )
+        .slice(0, 8); // Limit the results to a maximum of 20;
+
+      setFilteredCities(filtered);
+
+      if (input.includes("-")) {
+        const splitQuery = input.split("-");
+        const city = splitQuery[0].trim();
+        const state = IndiaCityStateMapping.find(
+          (state) => state.stateCode === splitQuery[1].trim()
+        )?.name;
+
+        if (state) {
+          setSignUpData({ ...signUpData, city: city, state: state });
+        }
+      }
+
+      if (errors.city) {
+        setErrors({ ...errors, city: "" });
+        setFirebaseError("");
+      }
+    } else {
+      setFilteredCities([]);
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const newErrors: any = {};
@@ -79,10 +126,21 @@ export default function AuthHandler() {
       if (!loginData.password.trim())
         newErrors.password = "Password is required.";
     } else {
-      if (!signUpData.name.trim()) newErrors.name = "Name is required.";
-      if (!signUpData.email.trim()) newErrors.email = "Email is required.";
-      if (!signUpData.password.trim())
+      if (!signUpData.name.trim()) {
+        newErrors.name = "Name is required.";
+      }
+      if (!signUpData.email.trim()) {
+        newErrors.email = "Email is required.";
+      }
+      if (!signUpData.password.trim()) {
         newErrors.password = "Password is required.";
+      }
+      if (!signUpData.phone.trim()) {
+        newErrors.phone = "Phone is required.";
+      }
+      if (!signUpData.city.trim()) {
+        newErrors.city = "City is required.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -132,7 +190,7 @@ export default function AuthHandler() {
             signUpData.password
           );
 
-          await fetch(`/api/signup`, {
+          const signupResponse = await fetch(`/api/signup`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -145,6 +203,13 @@ export default function AuthHandler() {
               state: signUpData.state,
             }),
           });
+
+          if (signupResponse.ok) {
+            const respone = await signupResponse.json();
+            if (respone.newUser) {
+              router.push("/confirm");
+            }
+          }
         } catch (error: any) {
           const errorCode = error.code;
           const errorMessage = error.message;
@@ -172,6 +237,72 @@ export default function AuthHandler() {
               setFirebaseError("An unknown error occurred. Please try again.");
           }
         }
+      }
+    }
+  };
+
+  const handleGoogleSignIn = async (e: any) => {
+    e.preventDefault();
+    const provider = new GoogleAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("User Info:", user);
+
+      const signupResponse = await fetch(`/api/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          name: user.displayName,
+          phone: user.providerData[0].phoneNumber ?? "",
+          city: "",
+          state: "",
+        }),
+      });
+
+      if (signupResponse.ok) {
+        const respone = await signupResponse.json();
+        if (respone.newUser) {
+          router.push("/confirm");
+        }
+      }
+    } catch (error: any) {
+      console.error("Error signing in:", error);
+
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      switch (errorCode) {
+        case "auth/popup-closed-by-user":
+          setFirebaseError(
+            "Sign-in popup was closed before completing the sign-in."
+          );
+          break;
+        case "auth/cancelled-popup-request":
+          setFirebaseError(
+            "Sign-in popup request was canceled because another one is already open."
+          );
+          break;
+        case "auth/network-request-failed":
+          setFirebaseError(
+            "Network error. Please check your connection and try again."
+          );
+          break;
+        case "auth/operation-not-allowed":
+          setFirebaseError("This operation is not allowed.");
+          break;
+        case "auth/account-exists-with-different-credential":
+          setFirebaseError(
+            "Account exists with different credentials, please use that."
+          );
+          break;
+        default:
+          setFirebaseError(`An unknown error occurred: ${errorMessage}`);
+          break;
       }
     }
   };
@@ -327,29 +458,60 @@ export default function AuthHandler() {
                 )}
               </div>
 
-              {/* Additional Sign Up Fields */}
-              {/* Phone, City, State */}
-              {(["phone", "city", "state"] as (keyof SignUpData)[]).map(
-                (field) => (
-                  <div key={field}>
-                    <label
-                      htmlFor={field}
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </label>
-                    <input
-                      id={field}
-                      name={field}
-                      type="text"
-                      value={signUpData[field]}
-                      onChange={(e) => handleChange(e, "signup")}
-                      placeholder={`Enter your ${field}`}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500"
-                    />
-                  </div>
-                )
-              )}
+              {(["phone"] as (keyof SignUpData)[]).map((field) => (
+                <div key={field}>
+                  <label
+                    htmlFor={field}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                    <span className="text-red-500"> *</span>
+                  </label>
+                  <input
+                    id={field}
+                    name={field}
+                    type="text"
+                    value={signUpData[field]}
+                    onChange={(e) => handleChange(e, "signup")}
+                    placeholder={`Enter your ${field}`}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none ${
+                      errors.phone ? "border-red-500" : "border-gray-300"
+                    } focus:ring-cyan-500 focus:border-cyan-500`}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-red-500 mt-1">{errors[field]}</p>
+                  )}
+                </div>
+              ))}
+
+              <div>
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  City <span className="text-red-500"> *</span>
+                </label>
+                <input
+                  id="state"
+                  name="state"
+                  type="state"
+                  list="city-options"
+                  value={query}
+                  onChange={handleCityInputChange}
+                  placeholder="Choose your City"
+                  className={`mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none ${
+                    errors.city ? "border-red-500" : "border-gray-300"
+                  } focus:ring-cyan-500 focus:border-cyan-500`}
+                />
+                <datalist id="city-options">
+                  {filteredCities.map((city, index) => (
+                    <option key={index} value={city.display} />
+                  ))}
+                </datalist>
+                {errors.city && (
+                  <p className="text-sm text-red-500 mt-1">{errors.city}</p>
+                )}
+              </div>
             </>
           )}
           {/* Submit Button */}
@@ -359,7 +521,9 @@ export default function AuthHandler() {
           >
             {activeTab === "login" ? "Login" : "Sign Up"}
           </button>
-          <div>
+
+          <GoogleSignIn handleSignIn={handleGoogleSignIn} />
+          <div className="flex flex-row justify-center">
             <p className="text-sm text-red-500 mt-1">{firebaseError}</p>
           </div>
         </form>
