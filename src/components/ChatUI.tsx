@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import questionnaireData from "@app/data/questionnaire-data.json";
 import { Message } from "react-chat-ui";
 import { CopyIcon, UpArrowIcon } from "../app/utils/commonIcons";
+import LoadingTypewriter from "./LoadingTypewriter";
 
 interface ChatUIProps {
   selectedQuestion: string;
@@ -227,16 +228,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ selectedQuestion, onSendMessage }) => {
             }
           }
         })}
-        {messageLoading && (
-          <div className="flex justify-start mb-2">
-            <div
-              className="p-2 rounded-lg text-black flex items-center justify-center"
-              style={{ maxWidth: "70%" }}
-            >
-              <div className="spinner"></div>
-            </div>
-          </div>
-        )}
+        {messageLoading && <LoadingTypewriter />}
         <div ref={messagesEndRef} />
       </div>
       <div className="flex flex-row w-full items-center gap-2 mt-4 justify-center">
