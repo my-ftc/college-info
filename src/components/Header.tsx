@@ -54,7 +54,9 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
       <div className="relative group mr-4 flex flex-row space-x-3 items-center">
         {isLoggedIn && (
           <div className="flex flex-row space-x-3 items-center">
-            <p>Hello, {userName ?? userInfo}</p>
+            <p className="lg:block md:block sm:block xs:hidden">
+              Hello, {userName ?? userInfo}
+            </p>
             <Tooltip title={"Profile"}>
               <button
                 className="transition-all duration-200 transform hover:scale-125"

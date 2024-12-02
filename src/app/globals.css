@@ -173,11 +173,15 @@ body {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.1; }  /* Adjust opacity for desired blink intensity */
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.1;
+  } /* Adjust opacity for desired blink intensity */
 }
 
 .blinking-text {
-  animation: blink 1s infinite;  /* 1s duration, loops indefinitely */
+  animation: blink 1s infinite; /* 1s duration, loops indefinitely */
 }
-
