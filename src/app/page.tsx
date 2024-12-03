@@ -174,10 +174,10 @@ export default function Home() {
     const response1: string = (messages1 as any).data[0].content[0].text.value;
     const response2: string = (messages2 as any).data[0].content[0].text.value;
 
-    const response2Parts = response2.split("</a>");
-    const modifiedResponse2 = response2Parts.slice(0, -1).join("</a>");
+    const removeSrcRegex = /【.*?】/g;
+    const modifiedResponse2 = response2.replace(removeSrcRegex, '');
 
-    return `${response1}\n\n${modifiedResponse2}</a>`;
+    return `${response1}\n\n${modifiedResponse2}`;
   };
 
   const checkStatus = async (threadId: string, runId: string) => {
