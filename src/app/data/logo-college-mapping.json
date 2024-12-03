@@ -33,7 +33,7 @@
   },
   {
     "file": "9",
-    "college": "IIM Bangalore"
+    "college": "International School of Business and Research (ISBR)"
   },
   {
     "file": "10",
@@ -82,5 +82,9 @@
   {
     "file": "21",
     "college": "KJ Somaiya Institute of Management"
+  },
+  {
+    "file": "22",
+    "college": "IIM Bangalore"
   }
 ]
