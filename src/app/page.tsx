@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { UpArrowIcon, ArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
-import OpenAI from "openai";
 import Footer from "@components/Footer";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@firebase/firebase";
@@ -96,6 +95,24 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
+    if (isRestricted) {
+      const message =
+        "You have reached the limit of questions. Please log in to ask more.";
+      return Promise.resolve(message);
+    }
+
+    if (!isLoggedIn) {
+      const newCount = questionCount + 1;
+      setQuestionCount(newCount);
+
+      if (newCount > 2 && !isLoggedIn) {
+        setIsRestricted(true);
+        const message =
+          "You have reached the limit of questions. Please log in to ask more.";
+        return Promise.resolve(message);
+      }
+    }
+
     const res = await fetch("/api/query", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
