@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const openAI = new OpenAI({
-  apiKey: process.env.CHATGPT_API_KEY!,
+  apiKey: process.env.OPENAI_API_KEY!,
   dangerouslyAllowBrowser: true,
 });
 

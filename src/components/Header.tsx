@@ -38,8 +38,6 @@ const Header: React.FC<HeaderProps> = ({ onStartNew, showNewChat }) => {
     onStartNew();
   };
 
-  console.log(userPhoto);
-
   return (
     <header className="flex justify-between items-center w-full p-4 bg-gray-100 shadow-sm">
       <Link href={"/"}>

@@ -28,11 +28,6 @@ export default function Home() {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const router = useRouter();
 
-  const openAI = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
-    dangerouslyAllowBrowser: true,
-  });
-
   useEffect(() => {
     const intervalId = setInterval(() => {
       setTimeout(() => {
@@ -101,97 +96,20 @@ export default function Home() {
   }, [questionnaireData]);
 
   const handleSendMessage = async (message: string): Promise<string> => {
-    if (isRestricted) {
-      const message =
-        "You have reached the limit of questions. Please log in to ask more.";
-      return Promise.resolve(message);
-    }
-
-    if (!isLoggedIn) {
-      const newCount = questionCount + 1;
-      setQuestionCount(newCount);
-
-      if (newCount > 2 && !isLoggedIn) {
-        setIsRestricted(true);
-        const message =
-          "You have reached the limit of questions. Please log in to ask more.";
-        return Promise.resolve(message);
-      }
-    }
-
-    await fetch("/api/query", {
+    const res = await fetch("/api/query", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: message }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: message, threadId1, threadId2 }),
     });
 
-    let currentThreadId1 = threadId1;
-    let currentThreadId2 = threadId2;
+    const data = await res.json();
 
-    if (!currentThreadId1) {
-      const thread1 = await openAI.beta.threads.create();
-      currentThreadId1 = thread1.id;
-      setThreadId1(thread1.id);
-    }
-    if (!currentThreadId2) {
-      const thread2 = await openAI.beta.threads.create();
-      currentThreadId2 = thread2.id;
-      setThreadId2(thread2.id);
-    }
-
-    await Promise.all([
-      openAI.beta.threads.messages.create(currentThreadId1, {
-        role: "user",
-        content: message,
-      }),
-      openAI.beta.threads.messages.create(currentThreadId2, {
-        role: "user",
-        content: message,
-      }),
-    ]);
-
-    const [run1, run2] = await Promise.all([
-      openAI.beta.threads.runs.create(currentThreadId1, {
-        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_1!,
-      }),
-      openAI.beta.threads.runs.create(currentThreadId2, {
-        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_2!,
-      }),
-    ]);
-
-    await Promise.all([
-      checkStatus(currentThreadId1, run1.id),
-      checkStatus(currentThreadId2, run2.id),
-    ]);
-
-    const [messages1, messages2] = await Promise.all([
-      openAI.beta.threads.messages.list(currentThreadId1),
-      openAI.beta.threads.messages.list(currentThreadId2),
-    ]);
-
-    const response1: string = (messages1 as any).data[0].content[0].text.value;
-    const response2: string = (messages2 as any).data[0].content[0].text.value;
-
-    const response2Parts = response2.split("</a>");
-    const modifiedResponse2 = response2Parts.slice(0, -1).join("</a>");
-
-    return `${response1}\n\n${modifiedResponse2}</a>`;
-  };
-
-  const checkStatus = async (threadId: string, runId: string) => {
-    let isComplete = false;
-    while (!isComplete) {
-      const runStatus = await openAI.beta.threads.runs.retrieve(
-        threadId,
-        runId
-      );
-      if (runStatus.status === "completed") {
-        isComplete = true;
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
+    if (res.ok) {
+      setThreadId1(data.threadId1);
+      setThreadId2(data.threadId2);
+      return data.response;
+    } else {
+      return "Something went wrong. Please try again.";
     }
   };
 
