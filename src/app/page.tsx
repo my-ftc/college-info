@@ -119,15 +119,39 @@ export default function Home() {
       body: JSON.stringify({ query: message, threadId1, threadId2 }),
     });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      setThreadId1(data.threadId1);
-      setThreadId2(data.threadId2);
-      return data.response;
-    } else {
+    if (!res.ok) {
       return "Something went wrong. Please try again.";
     }
+
+    const data = await res.json();
+    setThreadId1(data.threadId1);
+    setThreadId2(data.threadId2);
+
+    async function pollForResponse(
+      threadId: string,
+      runId: string,
+      isSecond = false
+    ): Promise<string> {
+      while (true) {
+        const statusRes = await fetch(
+          `/api/status?threadId=${threadId}&runId=${runId}&isSecond=${isSecond}`
+        );
+        const statusData = await statusRes.json();
+
+        if (statusData.status === "completed") {
+          return statusData.response;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+
+    const [response1, response2] = await Promise.all([
+      pollForResponse(data.threadId1, data.runId1, false),
+      pollForResponse(data.threadId2, data.runId2, true),
+    ]);
+
+    return `${response1}\n\n${response2}`;
   };
 
   const handleSearchSubmit = () => {
