@@ -1,3 +1,6 @@
+export const runtime = "edge"; // optional but faster
+export const dynamic = "force-dynamic"; // required for searchParams
+
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -7,7 +10,7 @@ const openai = new OpenAI({
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const threadId = searchParams.get("threadId")!;
     const runId = searchParams.get("runId")!;
     const isSecond = searchParams.get("isSecond") === "true";
