@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { UpArrowIcon, ArrowIcon } from "./utils/commonIcons";
 import ChatUI from "@components/ChatUI";
 import SwivelInfo from "@components/SwivelInfo";
-import OpenAI from "openai";
 import Footer from "@components/Footer";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@firebase/firebase";
@@ -27,11 +26,6 @@ export default function Home() {
   const [randomQuestions, setRandomQuestions] = useState<string[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const router = useRouter();
-
-  const openAI = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_CHATGPT_API_KEY!,
-    dangerouslyAllowBrowser: true,
-  });
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -119,80 +113,45 @@ export default function Home() {
       }
     }
 
-    await fetch("/api/query", {
+    const res = await fetch("/api/query", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: message }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: message, threadId1, threadId2 }),
     });
 
-    let currentThreadId1 = threadId1;
-    let currentThreadId2 = threadId2;
-
-    if (!currentThreadId1) {
-      const thread1 = await openAI.beta.threads.create();
-      currentThreadId1 = thread1.id;
-      setThreadId1(thread1.id);
-    }
-    if (!currentThreadId2) {
-      const thread2 = await openAI.beta.threads.create();
-      currentThreadId2 = thread2.id;
-      setThreadId2(thread2.id);
+    if (!res.ok) {
+      return "Something went wrong. Please try again.";
     }
 
-    await Promise.all([
-      openAI.beta.threads.messages.create(currentThreadId1, {
-        role: "user",
-        content: message,
-      }),
-      openAI.beta.threads.messages.create(currentThreadId2, {
-        role: "user",
-        content: message,
-      }),
-    ]);
+    const data = await res.json();
+    setThreadId1(data.threadId1);
+    setThreadId2(data.threadId2);
 
-    const [run1, run2] = await Promise.all([
-      openAI.beta.threads.runs.create(currentThreadId1, {
-        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_1!,
-      }),
-      openAI.beta.threads.runs.create(currentThreadId2, {
-        assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID_2!,
-      }),
-    ]);
+    async function pollForResponse(
+      threadId: string,
+      runId: string,
+      isSecond = false
+    ): Promise<string> {
+      while (true) {
+        const statusRes = await fetch(
+          `/api/status?threadId=${threadId}&runId=${runId}&isSecond=${isSecond}`
+        );
+        const statusData = await statusRes.json();
 
-    await Promise.all([
-      checkStatus(currentThreadId1, run1.id),
-      checkStatus(currentThreadId2, run2.id),
-    ]);
+        if (statusData.status === "completed") {
+          return statusData.response;
+        }
 
-    const [messages1, messages2] = await Promise.all([
-      openAI.beta.threads.messages.list(currentThreadId1),
-      openAI.beta.threads.messages.list(currentThreadId2),
-    ]);
-
-    const response1: string = (messages1 as any).data[0].content[0].text.value;
-    const response2: string = (messages2 as any).data[0].content[0].text.value;
-
-    const response2Parts = response2.split("</a>");
-    const modifiedResponse2 = response2Parts.slice(0, -1).join("</a>");
-
-    return `${response1}\n\n${modifiedResponse2}</a>`;
-  };
-
-  const checkStatus = async (threadId: string, runId: string) => {
-    let isComplete = false;
-    while (!isComplete) {
-      const runStatus = await openAI.beta.threads.runs.retrieve(
-        threadId,
-        runId
-      );
-      if (runStatus.status === "completed") {
-        isComplete = true;
-      } else {
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
+
+    const [response1, response2] = await Promise.all([
+      pollForResponse(data.threadId1, data.runId1, false),
+      pollForResponse(data.threadId2, data.runId2, true),
+    ]);
+
+    return `${response1}\n\n${response2}`;
   };
 
   const handleSearchSubmit = () => {

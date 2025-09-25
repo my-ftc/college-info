@@ -248,7 +248,6 @@ export default function AuthHandler() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      console.log("User Info:", user);
 
       const signupResponse = await fetch(`/api/signup`, {
         method: "POST",
